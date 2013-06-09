@@ -52,6 +52,10 @@ def authorize!
   @username = @tp.username("Dude")
 end
 
+get '/code_embed' do
+  erb :code_embed
+end
+
 # The url for launching the tool
 # It will verify the OAuth signature
 post '/lti_tool' do
@@ -63,7 +67,8 @@ post '/lti_tool' do
   else
     # normal tool launch without grade write-back
     @tp.lti_msg = "Sorry that tool was so boring"
-    erb :boring_tool
+    #erb :boring_tool
+    erb :code_embed
   end
 end
 
