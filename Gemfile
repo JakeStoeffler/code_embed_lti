@@ -6,6 +6,7 @@ gem 'dm-core'
 gem 'dm-migrations'
 gem 'dm-postgres-adapter'
 gem 'pg'
+gem 'json'
 
 group :development do
   gem 'shotgun'

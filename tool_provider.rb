@@ -2,6 +2,7 @@ require 'sinatra'
 require 'ims/lti'
 require 'dm-core'
 require 'dm-migrations'
+require 'json'
 # must include the oauth proxy object
 require 'oauth/request_proxy/rack_request'
 
@@ -77,11 +78,12 @@ post "/save_editor" do
   if session["can_save_" + params['placement_id']]
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'])
-    url = request.scheme + "://" + request.host_with_port + "/lti_tool"
-    return '{"success": true, "redirect_url": ' + url
+    url = request.scheme + "://" + request.host_with_port + "/lti_tool?refresh=1"
+    response = { :success => true, :redirect_url => url }
   else
-    return '{"success": false}'
+    response = { :success => false }
   end
+  response.to_json
 end
 
 get '/tool_config.xml' do
@@ -109,6 +111,7 @@ end
 
 DataMapper::Logger.new($stdout, :debug)
 env = ENV['RACK_ENV'] || settings.environment
+# ENV["DATABASE_URL"] is for Heroku, sqlite3 is for local
 DataMapper.setup(:default, (ENV["DATABASE_URL"] || "sqlite3:///#{Dir.pwd}/#{env}.sqlite3"))
 DataMapper.auto_upgrade!
 DataMapper.finalize

@@ -4,15 +4,15 @@
 %>
 <div class="container-fluid">
   <div class="row-fluid">
+    <div<% unless placement %> class="span10"<% end %>>
+      <div id="editor" style="display: none;"><%= placement.content if placement %></div>
+    </div>
     <% unless placement %>
     <div class="span2" id="settings">
       <!-- put settings panel here -->
       <button class="btn btn-primary" id="save-button" type="button">Save</button>
     </div> <!-- end settings -->
     <% end %>
-    <div<% unless placement %> class="span10"<% end %>>
-      <div id="editor" style="display: none;"><%= placement.content if placement %></div>
-    </div>
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
 <%= erb :_foot %>
@@ -39,6 +39,9 @@
         else {
           alert("There was a problem saving the editor.");
         }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert("There was a problem saving the editor: " + errorThrown);
       }
     });
   }
