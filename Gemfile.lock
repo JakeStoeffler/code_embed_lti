@@ -34,6 +34,7 @@ GEM
     macaddr (1.6.1)
       systemu (~> 2.5.0)
     oauth (0.4.7)
+    pg (0.15.1)
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
@@ -57,5 +58,6 @@ DEPENDENCIES
   dm-postgres-adapter
   dm-sqlite-adapter
   ims-lti!
+  pg
   shotgun
   sinatra
