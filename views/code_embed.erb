@@ -1,13 +1,13 @@
 <%= erb :_head, :locals => { :title => 'Code Embed Tool' } %>
 <% 
-  #placement = true 
+  #content = true 
 %>
 <div class="container-fluid">
   <div class="row-fluid">
-    <div<% unless placement %> class="span10"<% end %>>
-      <div id="editor" style="display: none;"><%= placement.content if placement %></div>
+    <div<% unless hide_settings %> class="span10"<% end %>>
+      <div id="editor" style="display: none;"><%= content if content %></div>
     </div>
-    <% unless placement %>
+    <% unless hide_settings %>
     <div class="span2" id="settings">
       <!-- put settings panel here -->
       <button class="btn btn-primary" id="save-button" type="button">Save</button>
@@ -20,21 +20,31 @@
   $(document).ready(function() {
     var editor = setupEditor();
   });
-<% unless placement %>
+<% unless hide_settings %>
   $("#save-button").on("click", saveEditor);
+  
   function saveEditor() {
+    $("#save-button").off("click");
+    $("#save-button").addClass("disabled");
+    var content = ace.edit("editor").getValue();
     $.ajax({
       url: "/save_editor",
       type: "POST",
       dataType: "json",
       data: {
-        content: ace.edit("editor").getValue(),
+        content: content,
         placement_id: "<%= placement_id || "null" %>"
       },
       success: function(data) {
         if (data.success) {
-          alert("Editor saved! Redirecting now...");
-          if (data.redirect_url) location.href = data.redirect_url;
+          //("Editor saved!");
+          if (data.redirect_url) {
+            var $input = $('<input name="content" type="hidden" />');
+            $input.val(content);
+            $('<form action="'+data.redirect_url+'" method="post" />')
+                .append($('<input name="content" type="hidden" />').val(content))
+                .submit();
+          }
         }
         else {
           alert("There was a problem saving the editor.");

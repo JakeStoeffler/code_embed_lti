@@ -13,6 +13,14 @@ get '/' do
   erb :index
 end
 
+# Simply display an editor with the contents passed to us.
+# No need for auth since we aren't doing any db stuff.
+post '/' do
+  erb :index unless params['content']
+  erb :code_embed, :locals => { :content => params['content'],
+                               :hide_settings => true }
+end
+
 # the consumer keys/secrets
 $oauth_creds = {"test" => "secret", "testing" => "supersecret"}
 
@@ -63,13 +71,21 @@ post '/lti_tool' do
   placement_id = params['resource_link_id'] + 
       params['tool_consumer_instance_guid']
   placement = Placement.first(:placement_id => placement_id)
-  # use a cookie-based session to remember placement permission
-  session["can_save_" + placement_id] = true unless placement
+  # If placement already exists, set up and display an editor with stored =
+  # contents and settings; else, let user create new editor placement.
+  if placement
+    content = placement.content
+    hide_settings = true
+  else
+    content = "Enter your code here..." # default content
+    hide_settings = false
+    # use a cookie-based session to remember placement permission
+    session["can_save_" + placement_id] = true
+  end
   @tp.lti_msg = "Thanks for using Code Embed!"
-  # If placement already exists, set up and display an editor with contents.
-  # Else, let user create new editor placement.
   # code_embed will set things up accordingly
-  erb :code_embed, :locals => { :placement => placement,
+  erb :code_embed, :locals => { :content => content,
+                                :hide_settings => hide_settings,
                                 :placement_id => placement_id }
 end
 
@@ -78,7 +94,7 @@ post "/save_editor" do
   if session["can_save_" + params['placement_id']]
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'])
-    url = request.scheme + "://" + request.host_with_port + "/lti_tool?refresh=1"
+    url = request.scheme + "://" + request.host_with_port + "/?redirect=1"
     response = { :success => true, :redirect_url => url }
   else
     response = { :success => false }
