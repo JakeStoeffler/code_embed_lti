@@ -1,6 +1,7 @@
 function setupEditor() {
 	var editorEl = document.getElementById("editor");
 	editorEl.style.display = "block";
+    $(editorEl).resizable();
 	// encode the editor's contents in case it contains any HTML code
 	//encodeContents(editorEl);
 	var editor = ace.edit("editor");

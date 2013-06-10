@@ -16,35 +16,32 @@
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
 <%= erb :_foot %>
+<script>
 <% if placement %>
-  <script>
-$(document).ready(function() {
-  var editor = setupEditor();
-  $("#editor").resizable();
-});
-  </script>
-<% else %>
-  <script>
-$("#save-button").on("click", saveEditor);
-function saveEditor() {
-  $.ajax({
-    url: "/save_editor",
-    type: "POST",
-    data: {
-      content: ace.edit("editor").getValue(),
-      placement_id: "<%= placement_id || "null" %>"
-    },
-    success: function(data) {
-      if (data.success) {
-        alert("Editor saved! Redirecting now...");
-        if (data.redirect_url) location.href = data.redirect_url;
-      }
-      else {
-        alert("There was a problem saving the editor.");
-      }
-    },
-    dataType: "json"
+  $(document).ready(function() {
+    var editor = setupEditor();
   });
-}
-  </script>
+<% else %>
+  $("#save-button").on("click", saveEditor);
+  function saveEditor() {
+    $.ajax({
+      url: "/save_editor",
+      type: "POST",
+      dataType: "json",
+      data: {
+        content: ace.edit("editor").getValue(),
+        placement_id: "<%= placement_id || "null" %>"
+      },
+      success: function(data) {
+        if (data.success) {
+          alert("Editor saved! Redirecting now...");
+          if (data.redirect_url) location.href = data.redirect_url;
+        }
+        else {
+          alert("There was a problem saving the editor.");
+        }
+      }
+    });
+  }
 <% end %>
+</script>
