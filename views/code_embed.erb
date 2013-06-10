@@ -26,7 +26,7 @@
   function saveEditor() {
     $("#save-button").off("click");
     $("#save-button").addClass("disabled");
-    var content = ace.edit("editor").getValue();
+    var content = escape(ace.edit("editor").getValue());
     $.ajax({
       url: "/save_editor",
       type: "POST",
@@ -39,8 +39,6 @@
         if (data.success) {
           //("Editor saved!");
           if (data.redirect_url) {
-            var $input = $('<input name="content" type="hidden" />');
-            $input.val(content);
             $('<form action="'+data.redirect_url+'" method="post" />')
                 .append($('<input name="content" type="hidden" />').val(content))
                 .submit();
