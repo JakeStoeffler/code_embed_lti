@@ -10,7 +10,27 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.2.8)
     builder (3.2.0)
+    data_objects (0.10.13)
+      addressable (~> 2.1)
+    dm-core (1.2.0)
+      addressable (~> 2.2.6)
+    dm-do-adapter (1.2.0)
+      data_objects (~> 0.10.6)
+      dm-core (~> 1.2.0)
+    dm-migrations (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-postgres-adapter (1.2.0)
+      dm-do-adapter (~> 1.2.0)
+      do_postgres (~> 0.10.6)
+    dm-sqlite-adapter (1.2.0)
+      dm-do-adapter (~> 1.2.0)
+      do_sqlite3 (~> 0.10.6)
+    do_postgres (0.10.13)
+      data_objects (= 0.10.13)
+    do_sqlite3 (0.10.13)
+      data_objects (= 0.10.13)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
     oauth (0.4.7)
@@ -32,6 +52,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dm-core
+  dm-migrations
+  dm-postgres-adapter
+  dm-sqlite-adapter
   ims-lti!
   shotgun
   sinatra

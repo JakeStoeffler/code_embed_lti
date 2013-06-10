@@ -1,5 +1,7 @@
 require 'sinatra'
 require 'ims/lti'
+require 'dm-core'
+require 'dm-migrations'
 # must include the oauth proxy object
 require 'oauth/request_proxy/rack_request'
 
@@ -52,50 +54,33 @@ def authorize!
   @username = @tp.username("Dude")
 end
 
-get '/code_embed' do
-  erb :code_embed
-end
-
 # The url for launching the tool
 # It will verify the OAuth signature
 post '/lti_tool' do
   authorize!
-
-  if @tp.outcome_service?
-    # It's a launch for grading
-    erb :assessment
-  else
-    # normal tool launch without grade write-back
-    @tp.lti_msg = "Sorry that tool was so boring"
-    #erb :boring_tool
-    erb :code_embed
-  end
+  return "missing required values: #{params}" unless params['resource_link_id'] && params['tool_consumer_instance_guid']
+  placement_id = params['resource_link_id'] + 
+      params['tool_consumer_instance_guid']
+  placement = Placement.first(:placement_id => placement_id)
+  # use a cookie-based session to remember placement permission
+  session["can_save_" + placement_id] = true unless placement
+  @tp.lti_msg = "Thanks for using Code Embed!"
+  # If placement already exists, set up and display an editor with contents.
+  # Else, let user create new editor placement.
+  # code_embed will set things up accordingly
+  erb :code_embed, :locals => { :placement => placement,
+                                :placement_id => placement_id }
 end
 
-# post the assessment results
-post '/assessment' do
-  if session['launch_params']
-    key = session['launch_params']['oauth_consumer_key']
+# Handle POST requests to the endpoint "/save_video"
+post "/save_editor" do
+  if session["can_save_" + params['placement_id']]
+    Placement.create(:placement_id => params['placement_id'],
+                     :content => params['content'])
+    url = request.scheme + "://" + request.host_with_port + "/lti_tool"
+    return '{"success": true, "redirect_url": ' + url
   else
-    return show_error "The tool never launched"
-  end
-
-  @tp = IMS::LTI::ToolProvider.new(key, $oauth_creds[key], session['launch_params'])
-
-  if !@tp.outcome_service?
-    return show_error "This tool wasn't lunched as an outcome service"
-  end
-
-  # post the given score to the TC
-  res = @tp.post_replace_result!(params['score'])
-
-  if res.success?
-    @score = params['score']
-    @tp.lti_msg = "Message shown when arriving back at Tool Consumer."
-    erb :assessment_finished
-  else
-    @tp.lti_errormsg = "The Tool Consumer failed to add the score."
-    show_error "Your score was not recorded: #{res.description}"
+    return '{"success": false}'
   end
 end
 
@@ -113,3 +98,17 @@ def was_nonce_used_in_last_x_minutes?(nonce, minutes=60)
   # some kind of caching solution or something to keep a short-term memory of used nonces
   false
 end
+
+# Data model to remember placements
+class Placement
+  include DataMapper::Resource
+  property :id, Serial
+  property :placement_id, String, :length => 1024
+  property :content, Text
+end
+
+DataMapper::Logger.new($stdout, :debug)
+env = ENV['RACK_ENV'] || settings.environment
+DataMapper.setup(:default, (ENV["DATABASE_URL"] || "sqlite3:///#{Dir.pwd}/#{env}.sqlite3"))
+DataMapper.auto_upgrade!
+DataMapper.finalize
