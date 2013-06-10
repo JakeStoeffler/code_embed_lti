@@ -10,18 +10,17 @@
       <button class="btn btn-primary" id="save-button" type="button">Save</button>
     </div> <!-- end settings -->
     <% end %>
-    <div<% unless placement %>class="span10" <% end %>>
+    <div<% unless placement %> class="span10"<% end %>>
       <div id="editor" style="display: none;"><%= placement.content if placement %></div>
     </div>
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
 <%= erb :_foot %>
 <script>
-<% if placement %>
   $(document).ready(function() {
     var editor = setupEditor();
   });
-<% else %>
+<% unless placement %>
   $("#save-button").on("click", saveEditor);
   function saveEditor() {
     $.ajax({
