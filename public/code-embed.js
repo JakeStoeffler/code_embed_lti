@@ -1,7 +1,4 @@
 function setupEditor() {
-	var editorEl = document.getElementById("editor");
-	editorEl.style.display = "block";
-    $(editorEl).resizable();
 	// encode the editor's contents in case it contains any HTML code
 	//encodeContents(editorEl);
 	var editor = ace.edit("editor");
@@ -9,6 +6,10 @@ function setupEditor() {
 	editor.setTheme("ace/theme/monokai");
 	editorSess.setMode("ace/mode/javascript");
 	editorSess.setUseWrapMode(true);
+  
+	var editorDiv = document.getElementById("editor");
+	editorDiv.style.display = "block";
+    $(editorDiv).resizable();
     return editor;
 }
 
