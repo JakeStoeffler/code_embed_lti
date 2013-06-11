@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fill-height">
 <head>
   <title>Code Embed Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,18 +7,19 @@
   <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
   <link href="/code-embed.css" rel="stylesheet" />
 </head>
-<body>
-<div class="container-fluid">
-  <div class="row-fluid">
+<body class="fill-height">
+<div class="container-fluid fill-height" style="padding: 0;">
+  <div class="row-fluid fill-height">
     <% unless hide_settings %>
-    <div class="span4" id="settings">
+    <div class="span4 fill-height" id="settings">
       <!-- put settings panel here -->
       <%= erb :_settings_panel %>
       <button class="btn btn-large btn-primary" id="save-button" type="button">Embed this code!</button>
+        <button class="btn btn-large" id="reset-button" type="button">Reset</button>
     </div> <!-- end settings -->
     <% end %>
-    <div<% unless hide_settings %> class="span8"<% end %>>
-      <div id="editor" style="display: none;"></div>
+    <div class="<% unless hide_settings %>span8<% end %> fill-height">
+      <div id="editor" class="fill-height" style="display: none;"></div>
     </div>
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
@@ -38,14 +39,20 @@
   var editorSettings = $.parseJSON(
       unescape($('#editor-data input[name="editor-settings"]').val()) || '{}');
   $(document).ready(function() {
-    var editor = setupEditor();
+    editor = setupEditor();
   });
 <% unless hide_settings %>
   $("#save-button").on("click", saveEditor);
+  $("#reset-button").on("click", resetEditor);
+  
+  function resetEditor() {
+    editorSettings = {};
+    setupEditor(true);
+  }
   
   function saveEditor() {
     var $saveBtn = $("#save-button");
-    $saveBtn.after($('<span class="label" id="save-label" style="margin: 10px;">Saving...</span>'));
+    $("#title").after($('<span class="label" id="save-label">Saving...</span>'));
     $saveBtn.off("click");
     $saveBtn.addClass("disabled");
     

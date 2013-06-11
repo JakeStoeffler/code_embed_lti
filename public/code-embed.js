@@ -9,16 +9,17 @@ var defaultSettings = {
   read_only: '0'
 };
 
-function setupEditor() {
-  // unescape the editor's contents before creating ACE
-  
-  //$editorEl.text(unescape($editorEl.text()));
+function setupEditor(isReset) {
   // create the ACE editor
   var editor = ace.edit("editor");
   var session = editor.getSession();
   // put content into editor if it exists
-  var rawContents = $('#editor-data input[name="contents"]').val() || '';
-  editor.insert(unescape(rawContents));
+  var rawContents = '';
+  if (!isReset) {
+    rawContents = $('#editor-data input[name="contents"]').val();
+  }
+  editor.setValue(unescape(rawContents));
+  editor.focus();
   // bind settings to form inputs and set defaults or user-saved settings
   bindDropdown("mode", function(value) {
     session.setMode(value);
