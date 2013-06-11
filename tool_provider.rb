@@ -79,7 +79,10 @@ post '/lti_tool' do
     editor_settings = placement.editor_settings
     hide_settings = true
   else
-    content = '// Type some code here...' # default content
+    content = "// Welcome to Code Embed!\n" + # default content
+      "// To get started, select the language you want to code in and pick a theme!\n" +
+      "// Feel free to play around with the other settings as well.\n" +
+      "// When you're done, just click 'Embed this code!' and the code will be embedded in your LMS exactly as it appears here!"
     editor_settings = nil
     hide_settings = false
     # use a cookie-based session to remember placement permission
@@ -110,8 +113,8 @@ end
 get '/tool_config.xml' do
   host = request.scheme + "://" + request.host_with_port
   url = host + "/lti_tool"
-  tc = IMS::LTI::ToolConfig.new(:title => "Example Sinatra Tool Provider", :launch_url => url)
-  tc.description = "This example LTI Tool Provider supports LIS Outcome pass-back."
+  tc = IMS::LTI::ToolConfig.new(:title => "Code Embed LTI Tool", :launch_url => url)
+  tc.description = "Code Embed allows users to embed a code editor in their LMS per standard LTI."
 
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
