@@ -18,7 +18,8 @@ end
 post '/' do
   erb :index unless params['content']
   erb :code_embed, :locals => { :content => params['content'],
-                               :hide_settings => true }
+                                :editor_settings => params['editor_settings'],
+                                :hide_settings => true }
 end
 
 # the consumer keys/secrets
@@ -75,9 +76,11 @@ post '/lti_tool' do
   # contents and settings; else, let user create new editor placement.
   if placement
     content = placement.content
+    editor_settings = placement.editor_settings
     hide_settings = true
   else
-    content = "Enter your code here..." # default content
+    content = '// Type some code here...' # default content
+    editor_settings = nil
     hide_settings = false
     # use a cookie-based session to remember placement permission
     session["can_save_" + placement_id] = true
@@ -85,6 +88,7 @@ post '/lti_tool' do
   @tp.lti_msg = "Thanks for using Code Embed!"
   # code_embed will set things up accordingly
   erb :code_embed, :locals => { :content => content,
+                                :editor_settings => editor_settings,
                                 :hide_settings => hide_settings,
                                 :placement_id => placement_id }
 end
@@ -93,7 +97,8 @@ end
 post "/save_editor" do
   if session["can_save_" + params['placement_id']]
     Placement.create(:placement_id => params['placement_id'],
-                     :content => params['content'])
+                     :content => params['content'],
+                     :editor_settings => params['editor_settings'])
     url = request.scheme + "://" + request.host_with_port + "/?redirect=1"
     response = { :success => true, :redirect_url => url }
   else
@@ -123,6 +128,7 @@ class Placement
   property :id, Serial
   property :placement_id, String, :length => 1024
   property :content, Text
+  property :editor_settings, String, :length => 1024
 end
 
 DataMapper::Logger.new($stdout, :debug)
