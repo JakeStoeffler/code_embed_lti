@@ -1,22 +1,42 @@
-<%= erb :_head, :locals => { :title => 'Code Embed Tool' } %>
-<% 
-  #content = true 
-%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Code Embed Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+  <link href="/code-embed.css" rel="stylesheet" />
+</head>
+<body>
 <div class="container-fluid">
   <div class="row-fluid">
-    <div<% unless hide_settings %> class="span10"<% end %>>
-      <div id="editor" style="display: none;"><%= content if content %></div>
-    </div>
     <% unless hide_settings %>
-    <div class="span2" id="settings">
+    <div class="span4" id="settings">
       <!-- put settings panel here -->
-      <button class="btn btn-primary" id="save-button" type="button">Save</button>
+      <%= erb :_settings_panel %>
+      <button class="btn btn-large btn-primary" id="save-button" type="button">Embed this code!</button>
     </div> <!-- end settings -->
     <% end %>
+    <div<% unless hide_settings %> class="span8"<% end %>>
+      <div id="editor" style="display: none;"></div>
+    </div>
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
-<%= erb :_foot %>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>	
+<script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/code-embed.js"></script>
+
+<form id="editor-data">
+  <input type="hidden" name="contents" value="<%= content if content %>" />
+  <input type="hidden" name="editor-settings" value="<%= editor_settings if editor_settings %>" />
+</form>
+
 <script>
+  var editorSettings = $.parseJSON(
+      unescape($('#editor-data input[name="editor-settings"]').val()) || '{}');
   $(document).ready(function() {
     var editor = setupEditor();
   });
@@ -24,24 +44,32 @@
   $("#save-button").on("click", saveEditor);
   
   function saveEditor() {
-    $("#save-button").off("click");
-    $("#save-button").addClass("disabled");
+    var $saveBtn = $("#save-button");
+    $saveBtn.after($('<span class="label" id="save-label" style="margin: 10px;">Saving...</span>'));
+    $saveBtn.off("click");
+    $saveBtn.addClass("disabled");
+    
     var content = escape(ace.edit("editor").getValue());
+    var editor_settings = escape(JSON.stringify(editorSettings));
     $.ajax({
       url: "/save_editor",
       type: "POST",
       dataType: "json",
       data: {
         content: content,
+        editor_settings: editor_settings,
         placement_id: "<%= placement_id || "null" %>"
       },
       success: function(data) {
         if (data.success) {
-          //("Editor saved!");
+          $('#save-label').addClass('label-success').text("Saved!");
           if (data.redirect_url) {
-            $('<form action="'+data.redirect_url+'" method="post" />')
-                .append($('<input name="content" type="hidden" />').val(content))
-                .submit();
+            // using an invisible form, redirect to our "public" page,
+            // POSTing the content we want shown
+            var $form = $('<form action="'+data.redirect_url+'" method="post" />');
+            $form.append($('<input name="content" type="hidden" />').val(content));
+            $form.append($('<input name="editor_settings" type="hidden" />').val(editor_settings));
+            $form.submit();
           }
         }
         else {
@@ -55,3 +83,6 @@
   }
 <% end %>
 </script>
+
+</body>
+</html>
