@@ -4,7 +4,7 @@
 - received top ten placing in the [LTI App Bounty](http://instructure.github.io/lti_bounty) initiated by Instructure
 
 
-Code Embed allows users to embed a code editor in their LMS per standard LTI.  Since this tool was literally hacked together in a matter of two days (with no previous LTI or Ruby experience), the tool only provies basic functionality right now.  However, I think there is great potential in a tool like this.  I hope to be able to spend more time on it and add some cool features like the ability to create coding assessments, do code execution and show output, auto-grade assessments, etc.  Contributions and ideas are always welcome!
+Code Embed allows users to embed a code editor in their LMS (Canvas, Blackboard, Desire2Learn, etc).  Since this tool was literally hacked together in a matter of two days (with no previous LTI or Ruby experience), the tool only provies basic functionality right now.  However, I think there is great potential in a tool like this.  I hope to be able to spend more time on it and add some cool features like the ability to create coding assessments, do code execution and show output, auto-grade assessments, etc.  Contributions and ideas are always welcome!
 
 ## Shout outs
 Code Embed
