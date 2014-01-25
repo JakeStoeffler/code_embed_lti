@@ -64,6 +64,17 @@ def authorize!
   @username = @tp.username("Dude")
 end
 
+# Render the requested placement
+get '/placement/:placement_id' do
+  return "Request is missing placement_id" unless params['placement_id']
+  placement = Placement.first(:placement_id => params['placement_id'])
+  return "Placement with id \"#{params['placement_id']}\" does not exist" unless placement
+  erb :code_embed, :locals => { :content => placement.content,
+                                :editor_settings => placement.editor_settings,
+                                :hide_settings => true,
+                                :placement_id => params['placement_id'] }
+end
+
 # The url for launching the tool
 # It will verify the OAuth signature
 post '/lti_tool' do
@@ -102,7 +113,8 @@ post "/save_editor" do
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'],
                      :editor_settings => params['editor_settings'])
-    url = request.scheme + "://" + request.host_with_port + "/?redirect=1"
+    url = request.scheme + "://" + request.host_with_port
+        + "/placement/" + params['placement_id']
     response = { :success => true, :redirect_url => url }
   else
     response = { :success => false }

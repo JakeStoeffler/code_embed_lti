@@ -33,6 +33,7 @@
 <form id="editor-data">
   <input type="hidden" name="contents" value="<%= content if content %>" />
   <input type="hidden" name="editor-settings" value="<%= editor_settings if editor_settings %>" />
+  <input type="hidden" name="placement-id" value="<%= placement_id if placement_id %>" />
 </form>
 
 <script>
@@ -71,12 +72,8 @@
         if (data.success) {
           $('#save-label').addClass('label-success').text("Saved!");
           if (data.redirect_url) {
-            // using an invisible form, redirect to our "public" page,
-            // POSTing the content we want shown
-            var $form = $('<form action="'+data.redirect_url+'" method="post" />');
-            $form.append($('<input name="content" type="hidden" />').val(content));
-            $form.append($('<input name="editor_settings" type="hidden" />').val(editor_settings));
-            $form.submit();
+              // Redirect to show the editor that was just saved
+              window.location.href = data.redirect_url;
           }
         }
         else {
