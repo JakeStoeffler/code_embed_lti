@@ -105,7 +105,7 @@ post '/lti_tool' do
   return_url = nil
   # If this if for a rich content editor, set up the return url
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
-    url = request.scheme + "://" + request.host_with_port
+    url = "https" + "://" + request.host_with_port
         + "/placement/" + params['placement_id']
     return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   end
@@ -126,7 +126,7 @@ post "/save_editor" do
     if params['return_url'] && !params['return_url'].empty?
       redirect_url = params['return_url']
     else
-      url = request.scheme + "://" + request.host_with_port
+      url = "https" + "://" + request.host_with_port
           + "/placement/" + params['placement_id']
     end
     response = { :success => true, :redirect_url => url }
@@ -137,7 +137,7 @@ post "/save_editor" do
 end
 
 get '/tool_config.xml' do
-  host = request.scheme + "://" + request.host_with_port
+  host = "https" + "://" + request.host_with_port
   url = host + "/lti_tool"
   icon_url = host + "/images/icon.png"
   tc = IMS::LTI::ToolConfig.new(:title => "Code Embed LTI Tool", :launch_url => url)
