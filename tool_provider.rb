@@ -34,6 +34,7 @@ def authorize!
   if key = params['oauth_consumer_key']
     if secret = $oauth_creds[key]
       @tp = IMS::LTI::ToolProvider.new(key, secret, params)
+      @tp.extend IMS::LTI::Extensions::Content::ToolProvider
     else
       @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
       @tp.lti_msg = "Your consumer didn't use a recognized key."
@@ -100,10 +101,18 @@ post '/lti_tool' do
     session["can_save_" + placement_id] = true
   end
   @tp.lti_msg = "Thanks for using Code Embed!"
+  
+  # If this if for a rich content editor
+  if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
+    url = request.scheme + "://" + request.host_with_port
+        + "/placement/" + params['placement_id']
+    @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
+  end
   # code_embed will set things up accordingly
   erb :code_embed, :locals => { :content => content,
                                 :editor_settings => editor_settings,
                                 :hide_settings => hide_settings,
+                                :return_url => @tp.build_return_url,
                                 :placement_id => placement_id }
 end
 
