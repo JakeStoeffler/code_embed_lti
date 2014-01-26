@@ -31,10 +31,10 @@
 <script src="/code-embed.js"></script>
 
 <form id="editor-data">
-  <input type="hidden" name="contents" value="<%= content if content %>" />
-  <input type="hidden" name="editor-settings" value="<%= editor_settings if editor_settings %>" />
-  <input type="hidden" name="return-url" value="<%= return_url if return_url %>" />
-  <input type="hidden" name="placement-id" value="<%= placement_id if placement_id %>" />
+  <input type="hidden" name="contents" value="<%= content if defined? content %>" />
+  <input type="hidden" name="editor-settings" value="<%= editor_settings if defined? editor_settings %>" />
+  <input type="hidden" name="return-url" value="<%= return_url if defined? return_url %>" />
+  <input type="hidden" name="placement-id" value="<%= placement_id if defined? placement_id %>" />
 </form>
 
 <script>
