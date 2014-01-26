@@ -139,15 +139,20 @@ end
 get '/tool_config.xml' do
   host = request.scheme + "://" + request.host_with_port
   url = host + "/lti_tool"
+  icon_url = host + "/images/icon.png"
   tc = IMS::LTI::ToolConfig.new(:title => "Code Embed LTI Tool", :launch_url => url)
   tc.extend IMS::LTI::Extensions::Canvas::ToolConfig
   tc.description = "Code Embed allows users to embed a code editor in their LMS per standard LTI."
-  tc.canvas_editor_button!({
+  tc.canvas_icon_url!(icon_url)
+  rce_props = {
     :enabled => true,
-    :text => "Insert an embedded code editor",
-    :selection_width => 800,
-    :selection_height => 600
-  })
+    :text => "Code Embed",
+    :selection_width => 690,
+    :selection_height => 530,
+    :icon_url => icon_url
+  }
+  tc.canvas_editor_button!(rce_props)
+  tc.canvas_resource_selection!(rce_props)
 
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
