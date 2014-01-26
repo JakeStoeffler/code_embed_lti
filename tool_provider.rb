@@ -106,7 +106,7 @@ post '/lti_tool' do
   # If this if for a rich content editor, set up the return url
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
     url = "https" + "://" + request.host_with_port
-        + "/placement/" + params['placement_id']
+        + "/placement/" + placement_id
     return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   end
   # code_embed will set things up accordingly
