@@ -33,8 +33,8 @@
 <form id="editor-data">
   <input type="hidden" name="contents" value="<%= content if defined? content %>" />
   <input type="hidden" name="editor-settings" value="<%= editor_settings if defined? editor_settings %>" />
-  <input type="hidden" name="return-url" value="<%= return_url if defined? return_url %>" />
   <input type="hidden" name="placement-id" value="<%= placement_id if defined? placement_id %>" />
+  <input type="hidden" name="return-url" value="<%= return_url if defined? return_url %>" />
 </form>
 
 <script>
@@ -67,7 +67,8 @@
       data: {
         content: content,
         editor_settings: editor_settings,
-        placement_id: "<%= placement_id || "null" %>"
+        placement_id: $('#editor-data input[name="placement-id"]').val(),
+        return_url: $('#editor-data input[name="return-url"]').val()
       },
       success: function(data) {
         if (data.success) {

@@ -102,18 +102,19 @@ post '/lti_tool' do
   end
   @tp.lti_msg = "Thanks for using Code Embed!"
   
-  # If this if for a rich content editor
+  return_url = nil
+  # If this if for a rich content editor, set up the return url
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
     url = request.scheme + "://" + request.host_with_port
         + "/placement/" + params['placement_id']
-    @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
+    return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   end
   # code_embed will set things up accordingly
   erb :code_embed, :locals => { :content => content,
                                 :editor_settings => editor_settings,
                                 :hide_settings => hide_settings,
-                                :return_url => @tp.build_return_url,
-                                :placement_id => placement_id }
+                                :placement_id => placement_id,
+                                :return_url => return_url }
 end
 
 # Handle POST requests to the endpoint "/save_video"
@@ -122,8 +123,12 @@ post "/save_editor" do
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'],
                      :editor_settings => params['editor_settings'])
-    url = request.scheme + "://" + request.host_with_port
-        + "/placement/" + params['placement_id']
+    if params['return_url'] && !params['return_url'].empty?
+      redirect_url = params['return_url']
+    else
+      url = request.scheme + "://" + request.host_with_port
+          + "/placement/" + params['placement_id']
+    end
     response = { :success => true, :redirect_url => url }
   else
     response = { :success => false }
