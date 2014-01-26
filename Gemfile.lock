@@ -1,17 +1,8 @@
-GIT
-  remote: https://github.com/instructure/ims-lti.git
-  revision: 8237787699d2ba4b360324329f93c530890d5c9a
-  specs:
-    ims-lti (1.1.2)
-      builder
-      oauth (~> 0.4.5)
-      uuid
-
 GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.2.8)
-    builder (3.2.0)
+    builder (3.2.2)
     data_objects (0.10.13)
       addressable (~> 2.1)
     dm-core (1.2.0)
@@ -31,6 +22,10 @@ GEM
       data_objects (= 0.10.13)
     do_sqlite3 (0.10.13)
       data_objects (= 0.10.13)
+    ims-lti (1.1.4)
+      builder
+      oauth (~> 0.4.5)
+      uuid
     json (1.8.0)
     macaddr (1.6.1)
       systemu (~> 2.5.0)
@@ -58,7 +53,7 @@ DEPENDENCIES
   dm-migrations
   dm-postgres-adapter
   dm-sqlite-adapter
-  ims-lti!
+  ims-lti (>= 1.1.4)
   json
   pg
   shotgun
