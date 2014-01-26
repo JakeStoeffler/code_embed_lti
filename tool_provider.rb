@@ -105,8 +105,7 @@ post '/lti_tool' do
   return_url = nil
   # If this if for a rich content editor, set up the return url
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
-    url = "https" + "://" + request.host_with_port
-        + "/placement/" + placement_id
+    url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
     return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   end
   # code_embed will set things up accordingly
@@ -126,8 +125,7 @@ post "/save_editor" do
     if params['return_url'] && !params['return_url'].empty?
       redirect_url = params['return_url']
     else
-      url = "https" + "://" + request.host_with_port
-          + "/placement/" + params['placement_id']
+      url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
     end
     response = { :success => true, :redirect_url => url }
   else
