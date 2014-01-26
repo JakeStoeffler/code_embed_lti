@@ -6,9 +6,18 @@
 }
 
 #settings {
-  padding-left: 15px;
+  padding: 0 15px;
 }
 
 .fill-height {
   height: 100% !important;
+  padding: 0;
+}
+
+#advanced-settings {
+  padding: 15px 0;
+}
+
+#controls label {
+  padding-right: 15px;
 }

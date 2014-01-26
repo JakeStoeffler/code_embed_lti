@@ -4,21 +4,21 @@
   <title>Code Embed Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.css" />
-  <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" media="screen" />
   <link href="/code-embed.css" rel="stylesheet" />
 </head>
 <body class="fill-height">
 <div class="container-fluid fill-height" style="padding: 0;">
   <div class="row-fluid fill-height">
     <% unless hide_settings %>
-    <div class="span4 fill-height" id="settings">
+    <div class="col-xs-4 fill-height" id="settings">
       <!-- put settings panel here -->
       <%= erb :_settings_panel %>
       <button class="btn btn-large btn-primary" id="save-button" type="button">Embed this code!</button>
         <button class="btn btn-large" id="reset-button" type="button">Reset</button>
     </div> <!-- end settings -->
     <% end %>
-    <div class="<% unless hide_settings %>span8<% end %> fill-height">
+    <div class="<% unless hide_settings %>col-xs-8<% end %> fill-height">
       <div id="editor" class="fill-height" style="display: none;"></div>
     </div>
   </div> <!-- end row-fluid -->
@@ -26,8 +26,8 @@
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script src="/bootstrap/js/bootstrap.min.js"></script>	
-<script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="/ace-builds/src-noconflict/ace.js"></script>
 <script src="/code-embed.js"></script>
 
 <form id="editor-data">

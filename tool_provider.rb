@@ -145,8 +145,8 @@ get '/tool_config.xml' do
   rce_props = {
     :enabled => true,
     :text => "Code Embed",
-    :selection_width => 690,
-    :selection_height => 530,
+    :selection_width => 850,
+    :selection_height => 600,
     :icon_url => icon_url
   }
   tc.canvas_editor_button!(rce_props)
