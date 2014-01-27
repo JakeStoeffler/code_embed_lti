@@ -114,6 +114,8 @@ post '/lti_tool' do
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
     url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
     return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
+  else
+    return_url = @tp.build_return_url
   end
   # code_embed will set things up accordingly
   erb :code_embed, :locals => { :content => content,
@@ -133,7 +135,8 @@ post "/save_editor" do
     if params['return_url'] && !params['return_url'].empty?
       redirect_url = params['return_url']
     else
-      redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
+      #redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
+      redirect_url = params['return_url']
     end
     response = { :success => true, :redirect_url => redirect_url }
   else
