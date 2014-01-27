@@ -67,8 +67,6 @@ def authorize!
 
   # save the launch parameters for use in later request
   #session['launch_params'] = @tp.to_params
-
-  @username = @tp.username("Dude")
 end
 
 # Render the requested placement
@@ -158,8 +156,8 @@ get '/tool_config.xml' do
     :selection_height => 600,
     :icon_url => icon_url
   }
-  tc.canvas_editor_button!(rce_props)
-  tc.canvas_resource_selection!(rce_props)
+  #tc.canvas_editor_button!(rce_props)
+  #tc.canvas_resource_selection!(rce_props)
 
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
