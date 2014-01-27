@@ -97,14 +97,14 @@ post '/lti_tool' do
   if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
     # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
     placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-    url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
-    return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   else
-    return_url = @tp.build_return_url
     placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   end
-  
   logger.info "placement_id: #{placement_id}"
+  
+  url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
+  return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
+  
   placement = Placement.first(:placement_id => placement_id)
   # If placement already exists, set up and display an editor with stored =
   # contents and settings; else, let user create new editor placement.
