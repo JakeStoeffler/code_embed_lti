@@ -67,6 +67,7 @@ end
 
 # Render the requested placement
 get '/placement/:placement_id' do
+  logger.info "GET /placement/#{params['placement_id']}"
   return "Request is missing placement_id" unless params['placement_id']
   placement = Placement.first(:placement_id => params['placement_id'])
   return "Placement with id \"#{params['placement_id']}\" does not exist" unless placement
@@ -79,9 +80,11 @@ end
 # The url for launching the tool
 # It will verify the OAuth signature
 post '/lti_tool' do
+  logger.info "POST /lti_tool"
   authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
+  logger.info "placement_id: #{placement_id}"
   placement = Placement.first(:placement_id => placement_id)
   # If placement already exists, set up and display an editor with stored =
   # contents and settings; else, let user create new editor placement.
@@ -115,8 +118,9 @@ post '/lti_tool' do
                                 :return_url => return_url }
 end
 
-# Handle POST requests to the endpoint "/save_video"
+# Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
+  logger.info "POST /save_editor"
   if session["can_save_" + params['placement_id']]
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'],
