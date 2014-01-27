@@ -32,41 +32,45 @@ def show_error(message)
 end
 
 def authorize!
-  if key = params['oauth_consumer_key']
-    if secret = $oauth_creds[key]
-      @tp = IMS::LTI::ToolProvider.new(key, secret, params)
-      @tp.extend IMS::LTI::Extensions::Content::ToolProvider
-    else
-      @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
-      @tp.lti_msg = "Your consumer didn't use a recognized key."
-      @tp.lti_errorlog = "You did it wrong!"
-      show_error "Consumer key wasn't recognized"
-      return false
-    end
-  else
-    show_error "No consumer key."
-    return false
-  end
-
-  if !@tp.valid_request?(request)
-    show_error "The OAuth signature was invalid."
-    return false
-  end
-
-  if Time.now.utc.to_i - @tp.request_oauth_timestamp.to_i > 60*60
-    show_error "Your request is too old."
-    return false
-  end
-
-  # this isn't actually checking anything like it should, just want people
-  # implementing real tools to be aware they need to check the nonce
-  if was_nonce_used_in_last_x_minutes?(@tp.request_oauth_nonce, 60)
-    show_error "Why are you reusing the nonce?"
-    return false
-  end
+  # Let's not worry about auth for now... just make any key/secret work.
+#   if key = params['oauth_consumer_key']
+#     if secret = $oauth_creds[key]
+#       @tp = IMS::LTI::ToolProvider.new(key, secret, params)
+#       @tp.extend IMS::LTI::Extensions::Content::ToolProvider
+#     else
+#       @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
+#       @tp.lti_msg = "Your consumer didn't use a recognized key."
+#       @tp.lti_errorlog = "You did it wrong!"
+#       show_error "Consumer key wasn't recognized"
+#       return false
+#     end
+#   else
+#     show_error "No consumer key."
+#     return false
+#   end
+# 
+#   if !@tp.valid_request?(request)
+#     show_error "The OAuth signature was invalid."
+#     return false
+#   end
+# 
+#   if Time.now.utc.to_i - @tp.request_oauth_timestamp.to_i > 60*60
+#     show_error "Your request is too old."
+#     return false
+#   end
+# 
+#   # this isn't actually checking anything like it should, just want people
+#   # implementing real tools to be aware they need to check the nonce
+#   if was_nonce_used_in_last_x_minutes?(@tp.request_oauth_nonce, 60)
+#     show_error "Why are you reusing the nonce?"
+#     return false
+#   end
 
   # save the launch parameters for use in later request
   #session['launch_params'] = @tp.to_params
+  
+  @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
+  @tp.extend IMS::LTI::Extensions::Content::ToolProvider
   return true
 end
 
