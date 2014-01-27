@@ -81,8 +81,7 @@ end
 post '/lti_tool' do
   authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
-  placement_id = params['resource_link_id'] + 
-      (params['tool_consumer_instance_guid'] or "")
+  placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   placement = Placement.first(:placement_id => placement_id)
   # If placement already exists, set up and display an editor with stored =
   # contents and settings; else, let user create new editor placement.
