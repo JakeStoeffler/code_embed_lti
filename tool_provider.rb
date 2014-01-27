@@ -12,7 +12,7 @@ set :protection, :except => :frame_options
 # Add special header to prevent browser from freaking out about JavaScript
 # being sent in the HTML form.
 after do
-  response.headers['X-XSS-Protection'] = 0
+  response.headers['X-XSS-Protection'] = '0'
 end
 
 get '/' do
