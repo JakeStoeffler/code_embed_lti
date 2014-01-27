@@ -100,7 +100,7 @@ post '/lti_tool' do
     url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
     return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   else
-    return_url = nil
+    return_url = @tp.build_return_url
     placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   end
   
