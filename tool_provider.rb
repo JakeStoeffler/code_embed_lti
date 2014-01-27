@@ -158,7 +158,7 @@ get '/tool_config.xml' do
     :icon_url => icon_url
   }
   tc.canvas_editor_button!(rce_props)
-  #tc.canvas_resource_selection!(rce_props)
+  tc.canvas_resource_selection!(rce_props)
 
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
