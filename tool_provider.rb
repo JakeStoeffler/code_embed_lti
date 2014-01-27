@@ -67,6 +67,7 @@ def authorize!
 
   # save the launch parameters for use in later request
   #session['launch_params'] = @tp.to_params
+  return true
 end
 
 # Render the requested placement
