@@ -18,7 +18,7 @@
       <button class="btn btn-large" id="reset-button" type="button">Reset</button>
     </div> <!-- end settings -->
     <% end %>
-    <div class="<% unless hide_settings %>col-xs-8<% end %> fill-height">
+    <div class="<% unless hide_settings %>col-xs-8 <% end %>fill-height">
       <div id="editor" class="fill-height" style="display: none;"></div>
     </div>
   </div> <!-- end row-fluid -->
@@ -29,6 +29,9 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
 <script src="/ace-builds/src-noconflict/ace.js"></script>
 <script src="/code-embed.js"></script>
+<% unless hide_settings %>
+<script src="/code-embed-settings-panel.js"></script>
+<% end %>
 
 <form id="editor-data">
   <input type="hidden" name="contents" value="<%= content if defined? content %>" />
@@ -36,61 +39,6 @@
   <input type="hidden" name="placement-id" value="<%= placement_id if defined? placement_id %>" />
   <input type="hidden" name="return-url" value="<%= return_url if defined? return_url %>" />
 </form>
-
-<script>
-  var editorSettings = $.parseJSON(
-      unescape($('#editor-data input[name="editor-settings"]').val()) || '{}');
-  $(document).ready(function() {
-    editor = setupEditor();
-  });
-<% unless hide_settings %>
-  $(document).ready(function() {
-    $("#save-button").on("click", saveEditor);
-    $("#reset-button").on("click", resetEditor);
-    
-    function resetEditor() {
-      editorSettings = {};
-      setupEditor(true);
-    }
-    
-    function saveEditor() {
-      var $saveBtn = $("#save-button");
-      $("#title").after($('<span class="label" id="save-label">Saving...</span>'));
-      $saveBtn.off("click");
-      $saveBtn.addClass("disabled");
-      
-      var content = escape(ace.edit("editor").getValue());
-      var editor_settings = escape(JSON.stringify(editorSettings));
-      $.ajax({
-        url: "/save_editor",
-        type: "POST",
-        dataType: "json",
-        data: {
-          content: content,
-          editor_settings: editor_settings,
-          placement_id: $('#editor-data input[name="placement-id"]').val(),
-          return_url: $('#editor-data input[name="return-url"]').val()
-        },
-        success: function(data) {
-          if (data.success) {
-            $('#save-label').addClass('label-success').text("Saved!");
-            if (data.redirect_url) {
-                // Redirect to show the editor that was just saved
-                window.location.href = data.redirect_url;
-            }
-          }
-          else {
-            alert("There was a problem saving the editor.");
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert("There was a problem saving the editor: " + errorThrown);
-        }
-      });
-    }
-  });
-<% end %>
-</script>
 
 </body>
 </html>

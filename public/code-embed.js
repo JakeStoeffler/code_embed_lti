@@ -1,3 +1,9 @@
+$(document).ready(function() {
+  var editorSettings = $.parseJSON(
+      unescape($('#editor-data input[name="editor-settings"]').val()) || '{}');
+  editor = setupEditor(editorSettings);
+});
+
 var defaultSettings = {
   mode: 'ace/mode/javascript',
   theme: 'ace/theme/tomorrow_night',
@@ -9,7 +15,7 @@ var defaultSettings = {
   read_only: '0'
 };
 
-function setupEditor(isReset) {
+function setupEditor(settings, isReset) {
   // create the ACE editor
   var editor = ace.edit("editor");
   var session = editor.getSession();
@@ -21,29 +27,29 @@ function setupEditor(isReset) {
   editor.setValue(unescape(rawContents));
   editor.focus();
   // bind settings to form inputs and set defaults or user-saved settings
-  bindDropdown("mode", function(value) {
+  bindDropdown("mode", settings, function(value) {
     session.setMode(value);
   });
-  bindDropdown("theme", function(value) {
+  bindDropdown("theme", settings, function(value) {
     editor.setTheme(value);
   });
-  bindDropdown("fontsize", function(value) {
+  bindDropdown("fontsize", settings, function(value) {
     editor.setFontSize(value);
   });
-  bindCheckbox("soft_wrap", function(checked) {
+  bindCheckbox("soft_wrap", settings, function(checked) {
     session.setUseWrapMode(checked);
   });
-  bindCheckbox("show_gutter", function(checked) {
+  bindCheckbox("show_gutter", settings, function(checked) {
     editor.renderer.setShowGutter(checked);
   });
-  bindCheckbox("show_print_margin", function(checked) {
+  bindCheckbox("show_print_margin", settings, function(checked) {
     editor.setShowPrintMargin(checked);
   });
-  bindCheckbox("folding", function(checked) {
+  bindCheckbox("folding", settings, function(checked) {
     editor.session.setFoldStyle(checked ? "markbegin" : "manual");
     editor.setShowFoldWidgets(checked);
   });
-  bindCheckbox("read_only", function(checked) {
+  bindCheckbox("read_only", settings, function(checked) {
     editor.setReadOnly(checked);
   });
   
@@ -67,7 +73,7 @@ function getEncodedContents(element) {
 
 // Huge thank you to the folks at the ACE's Kitchen Sink for much
 // of this code! (http://ace.ajax.org/build/kitchen-sink.html)
-function bindCheckbox(id, callback) {
+function bindCheckbox(id, editorSettings, callback) {
   var el = document.getElementById(id) || {};
   var enabled = defaultSettings[id] == '1';
   if (editorSettings[id]) {
@@ -84,7 +90,7 @@ function bindCheckbox(id, callback) {
   onChange();
 };
 
-function bindDropdown(id, callback) {
+function bindDropdown(id, editorSettings, callback) {
   var el = document.getElementById(id) || {};
   var value = defaultSettings[id];
   if (editorSettings[id]) {
