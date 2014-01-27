@@ -1,23 +1,27 @@
 $(document).ready(function() {
-  var editorSettings = $.parseJSON(
-      unescape($('#editor-data input[name="editor-settings"]').val()) || '{}');
-  editor = setupEditor(editorSettings);
+  $.CodeEmbed = {
+    editorSettings: $.parseJSON(
+        unescape($('#editor-data input[name="editor-settings"]').val())
+        || '{}'
+    ),
+    defaultSettings: {
+      mode: 'ace/mode/javascript',
+      theme: 'ace/theme/tomorrow_night',
+      fontsize: '12px',
+      folding: '0',
+      soft_wrap: '1',
+      show_gutter: '1',
+      show_print_margin: '0',
+      read_only: '0'
+    }
+  }
+  editor = setupEditor();
 });
 
-var defaultSettings = {
-  mode: 'ace/mode/javascript',
-  theme: 'ace/theme/tomorrow_night',
-  fontsize: '12px',
-  folding: '0',
-  soft_wrap: '1',
-  show_gutter: '1',
-  show_print_margin: '0',
-  read_only: '0'
-};
-
-function setupEditor(settings, isReset) {
+function setupEditor(isReset) {
   // create the ACE editor
-  var editor = ace.edit("editor");
+  $.CodeEmbed.editor = ace.edit("editor");
+  var editor = $.CodeEmbed.editor;
   var session = editor.getSession();
   // put content into editor if it exists
   var rawContents = '';
@@ -26,30 +30,31 @@ function setupEditor(settings, isReset) {
   }
   editor.setValue(unescape(rawContents));
   editor.focus();
+  editor.selection.selectFileStart();
   // bind settings to form inputs and set defaults or user-saved settings
-  bindDropdown("mode", settings, function(value) {
+  bindDropdown("mode", function(value) {
     session.setMode(value);
   });
-  bindDropdown("theme", settings, function(value) {
+  bindDropdown("theme", function(value) {
     editor.setTheme(value);
   });
-  bindDropdown("fontsize", settings, function(value) {
+  bindDropdown("fontsize", function(value) {
     editor.setFontSize(value);
   });
-  bindCheckbox("soft_wrap", settings, function(checked) {
+  bindCheckbox("soft_wrap", function(checked) {
     session.setUseWrapMode(checked);
   });
-  bindCheckbox("show_gutter", settings, function(checked) {
+  bindCheckbox("show_gutter", function(checked) {
     editor.renderer.setShowGutter(checked);
   });
-  bindCheckbox("show_print_margin", settings, function(checked) {
+  bindCheckbox("show_print_margin", function(checked) {
     editor.setShowPrintMargin(checked);
   });
-  bindCheckbox("folding", settings, function(checked) {
+  bindCheckbox("folding", function(checked) {
     editor.session.setFoldStyle(checked ? "markbegin" : "manual");
     editor.setShowFoldWidgets(checked);
   });
-  bindCheckbox("read_only", settings, function(checked) {
+  bindCheckbox("read_only", function(checked) {
     editor.setReadOnly(checked);
   });
   
@@ -60,6 +65,7 @@ function setupEditor(settings, isReset) {
   $editorEl.on("resize", function(){
     editor.resize(); // ACE needs to be told to resize
   });
+  
   return editor;
 }
 
@@ -73,33 +79,33 @@ function getEncodedContents(element) {
 
 // Huge thank you to the folks at the ACE's Kitchen Sink for much
 // of this code! (http://ace.ajax.org/build/kitchen-sink.html)
-function bindCheckbox(id, editorSettings, callback) {
+function bindCheckbox(id, callback) {
   var el = document.getElementById(id) || {};
-  var enabled = defaultSettings[id] == '1';
-  if (editorSettings[id]) {
+  var enabled = $.CodeEmbed.defaultSettings[id] == '1';
+  if ($.CodeEmbed.editorSettings[id]) {
     // override default if set by user
-    enabled = editorSettings[id] == '1';
+    enabled = $.CodeEmbed.editorSettings[id] == '1';
   }
   el.checked = enabled;
   var onChange = function() {
     var val = !!el.checked;
-    editorSettings[id] = val ? '1' : '0'; // set setting so it can be persisted
+    $.CodeEmbed.editorSettings[id] = val ? '1' : '0'; // set setting so it can be persisted
     callback(val);
   };
   el.onclick = onChange;
   onChange();
 };
 
-function bindDropdown(id, editorSettings, callback) {
+function bindDropdown(id, callback) {
   var el = document.getElementById(id) || {};
-  var value = defaultSettings[id];
-  if (editorSettings[id]) {
-    value = editorSettings[id];
+  var value = $.CodeEmbed.defaultSettings[id];
+  if ($.CodeEmbed.editorSettings[id]) {
+    value = $.CodeEmbed.editorSettings[id];
   }
   el.value = value;
   var onChange = function() {
     var val = el.value;
-    editorSettings[id] = val;
+    $.CodeEmbed.editorSettings[id] = val;
     callback(val);
   };
   el.onchange = onChange;

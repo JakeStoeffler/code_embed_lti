@@ -2,9 +2,13 @@ $(document).ready(function() {
   $("#save-button").on("click", saveEditor);
   $("#reset-button").on("click", resetEditor);
   
+  window.setTimeout(function(){
+      $.CodeEmbed.editor.selection.selectAll();
+  }, 1000);
+  
   function resetEditor() {
-    var editorSettings = {};
-    setupEditor(editorSettings, true);
+    $.CodeEmbed.editorSettings = {};
+    setupEditor(true);
   }
   
   function saveEditor() {
@@ -14,14 +18,14 @@ $(document).ready(function() {
     $saveBtn.addClass("disabled");
     
     var content = escape(ace.edit("editor").getValue());
-    var editor_settings = escape(JSON.stringify(editorSettings));
+    var editorSettings = escape(JSON.stringify($.CodeEmbed.editorSettings));
     $.ajax({
       url: "/save_editor",
       type: "POST",
       dataType: "json",
       data: {
         content: content,
-        editor_settings: editor_settings,
+        editor_settings: editorSettings,
         placement_id: $('#editor-data input[name="placement-id"]').val(),
         return_url: $('#editor-data input[name="return-url"]').val()
       },
