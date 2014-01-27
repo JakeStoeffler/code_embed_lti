@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'sinatra/flash'
 require 'ims/lti'
 require 'dm-core'
 require 'dm-migrations'
@@ -39,28 +40,33 @@ def authorize!
       @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
       @tp.lti_msg = "Your consumer didn't use a recognized key."
       @tp.lti_errorlog = "You did it wrong!"
-      return show_error "Consumer key wasn't recognized"
+      show_error "Consumer key wasn't recognized"
+      return false
     end
   else
-    return show_error "No consumer key"
+    show_error "No consumer key."
+    return false
   end
 
   if !@tp.valid_request?(request)
-    return show_error "The OAuth signature was invalid"
+    show_error "The OAuth signature was invalid."
+    return false
   end
 
   if Time.now.utc.to_i - @tp.request_oauth_timestamp.to_i > 60*60
-    return show_error "Your request is too old."
+    show_error "Your request is too old."
+    return false
   end
 
   # this isn't actually checking anything like it should, just want people
   # implementing real tools to be aware they need to check the nonce
   if was_nonce_used_in_last_x_minutes?(@tp.request_oauth_nonce, 60)
-    return show_error "Why are you reusing the nonce?"
+    show_error "Why are you reusing the nonce?"
+    return false
   end
 
   # save the launch parameters for use in later request
-  session['launch_params'] = @tp.to_params
+  #session['launch_params'] = @tp.to_params
 
   @username = @tp.username("Dude")
 end
@@ -81,7 +87,7 @@ end
 # It will verify the OAuth signature
 post '/lti_tool' do
   logger.info "POST /lti_tool"
-  authorize!
+  return erb :error unless authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   logger.info "placement_id: #{placement_id}"
@@ -100,7 +106,7 @@ post '/lti_tool' do
     editor_settings = nil
     hide_settings = false
     # use a cookie-based session to remember placement permission
-    session["can_save_" + placement_id] = true
+    flash["can_save_" + placement_id] = true
   end
   @tp.lti_msg = "Thanks for using Code Embed!"
   
@@ -121,7 +127,7 @@ end
 # Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
   logger.info "POST /save_editor"
-  if session["can_save_" + params['placement_id']]
+  if flash["can_save_" + params['placement_id']]
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'],
                      :editor_settings => params['editor_settings'])
