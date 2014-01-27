@@ -128,9 +128,9 @@ post "/save_editor" do
     if params['return_url'] && !params['return_url'].empty?
       redirect_url = params['return_url']
     else
-      url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
+      redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
     end
-    response = { :success => true, :redirect_url => url }
+    response = { :success => true, :redirect_url => redirect_url }
   else
     response = { :success => false }
   end
