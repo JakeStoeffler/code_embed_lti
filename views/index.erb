@@ -1,6 +1,162 @@
-<html>
-<body>
-<p>Welcome to the Code Embed LTI tool!  You can launch the tool at /lti_tool</p>
-<p>You can get the configuration XML here: <a href="/tool_config.xml">LTI Config</a></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Code Embed is a tool that lets you embed a code editor in your LMS.">
+  <meta name="author" content="Jake Stoeffler">
+  <link rel="shortcut icon" href="/favicon.png">
+  
+  <title>Code Embed Tool</title>
+  
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body data-spy="scroll" data-target=".navbar-default" data-offset="70" style="padding-top: 70px;">
+  
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#home">Code Embed</a>
+    </div>
+  
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li style="display: none;"><a href="#home">Home</a></li> <!-- hack to make ScrollSpy leave Install when scrolling to top -->
+        <li><a href="#install">Install</a></li>
+        <li><a href="#use">Use</a></li>
+        <li><a href="#contribute">Contribute</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right" style="padding-top: 15px">
+        <li><iframe src="http://ghbtns.com/github-btn.html?user=JakeStoeffler&repo=code_embed_lti&type=watch&count=true"
+  allowtransparency="true" frameborder="0" scrolling="0" width="90" height="20"></iframe></li>
+        <li><iframe src="http://ghbtns.com/github-btn.html?user=JakeStoeffler&repo=code_embed_lti&type=fork&count=true"
+  allowtransparency="true" frameborder="0" scrolling="0" width="90" height="20"></iframe></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div>
+</nav>
+
+<div class="container">
+  <section id="home">
+    <a href="#home">
+      <img src="images/banner.png" alt="Code Embed" class="center-block">
+    </a>
+    <div class="jumbotron">
+      <h1>Welcome to Code Embed!</h1>
+      <p>Code Embed is a tool that lets you embed a code editor in an LMS such as Canvas, Blackboard, or Moodle.</p>
+    </div>
+  </section>
+  
+  <section id="install">
+    <h1>Install</h1>
+    <p>The tool can be installed as an LTI application in your LMS of choice.  Code Embed has only been thoroughly tested in <a href="https://canvas.instructure.com">Canvas</a>, but it should work in any LMS that implements the <a href="http://www.imsglobal.org/toolsinteroperability2.cfm">LTI standard</a>.</p>
+    <h3>Canvas</h3>
+    <ol>
+      <li>Navigate to the Settings panel for a course that you administer</li>
+      <li>Enter the Apps section of the Settings panel</li>
+      <li>Find Code Embed in the list of External Apps (you may type "Code Embed" in the filter field) and click on it</li>
+      <li>Click Add Tool and you should be all set!</li>
+    </ol>
+    
+    <p>Alternatively, to configure the tool manually, perform the first two steps above and then:</p>
+    <ol>
+      <li>Click View App Configurations</li>
+      <li>Click Add New App</li>
+      <li>Enter whatever you would like for the Name, Consumer Key, and Shared Secret (any key/secret is accepted by Code Embed)</li>
+      <li>Select "By URL" for the Configuration Type</li>
+      <li>For the Configuration URL, enter "<a href="http://code-embed-test.herokuapp.com/tool_config.xml">http://code-embed-test.herokuapp.com/tool_config.xml</a>"</li>
+      <li>Click Submit!</li>
+    </ol>
+    
+    <h3>Other LMS</h3>
+    <p>Please <a href="#contact">let us know</a> if you have tried Code Embed in a different LMS with or without success.  We would love to hear any feedback you may have regarding other environments.</p>
+  </section>
+  
+  <section id="use">
+    <h1>Use</h1>
+    <h3>Canvas</h3>
+    <p>Code Embed may be used in Canvas in two main ways: via an editor button and via resource selection.</p>
+    
+    <h4>Editor Button</h4>
+    <p>To use Code Embed in Pages, Assignments, Quizzes, or any other feature that utilizes the rich content editor, you may use Code Embed's editor button.  Note that Code Embed cannot at this time be used for students to submit their own code.  It can only display code that it is initally configured to display (like sample code).  Allowing students to submit code for assignments and quizzes would be awesome, but it's a feature we haven't gotten to yet, which is why <a href="#contribute">we'd love your help</a>!</p>
+    
+    <p>After <a href="#install">installing</a> Code Embed, simply enter edit mode for any resource that uses the rich content editor and:</p>
+    <ol>
+      <li>Click the Code Embed editor button (<img src="/images/icon.png" alt="Code Embed icon">) in the toolbar</li>
+      <li>Enter the code you would like displayed in the code editor</li>
+      <li>Select the language for your code (or select Text for plain text)</li>
+      <li>Set the theme, font size, and other settings as you see fit, keeping in mind that you won't be able to change these later</li>
+      <li>Click Embed this code!</li>
+      <li>A placeholder will appear in the rich content editor where your embedded code will appear.  You may resize the placeholder as needed to set the size of the code editor.</li>
+      <li>Click Save Changes and you should be all set!  (Note that there is a bug in Canvas where the embedded code will not appear after clicking Save Changes.  Simply refresh your browser and it will appear.)</li>
+    </ol>
+    
+    <h4>Resource Selection</h4>
+    <p>Resource selection allows you to use Code Embed in Canvas features such as Modules.  We won't cover the exact steps for this as it's not a popular use case, but it is pretty straightforward to do.</p>
+    
+    <h3>Other LMS</h3>
+    <p>You should be able to use Code Embed in its most basic form as a standard LTI tool in any LMS that supports LTI.  Again, please <a href="#contact">let us know</a> if you have tried this as we haven't tested it out yet.</p>
+  </section>
+  
+  <section id="contribute">
+    <h1>Contribute</h1>
+    <p>Code Embed is open source!  We would love your help to improve it and add more functionality.  If you are interested in contributing or just have some cool ideas, please <a href="https://github.com/JakeStoeffler/code_embed_lti">fork us on GitHub</a> or <a href="#contact">get in touch</a> with us!  If you found a bug, please <a href="https://github.com/JakeStoeffler/code_embed_lti/issues">file an issue</a> on GitHub and we'll do our best to fix it.</p>
+  </section>
+  
+  <section id="contact">
+    <h1>Contact</h1>
+    <p>Hi there!  I'm <a href="http://jakestoeffler.com">Jake Stoeffler</a>, the author of Code Embed.  Whether you need help with Code Embed or just want to say hi, I'd love to hear from you!  Feel free to get in touch using any of the following outlets:</p>
+    <ul>
+      <li><a href="mailto:jake@jakestoeffler.com">Email</a></li>
+      <li><a href="https://github.com/JakeStoeffler">GitHub</a></li>
+      <li><a href="https://plus.google.com/+JakeStoeffler">Google+</a></li>
+      <li><a href="http://www.linkedin.com/in/JakeStoeffler">LinkedIn</a></li>
+      <li><a href="https://twitter.com/JakeStoeffler">Twitter</a></li>
+    </ul>
+    <p>Thanks for stopping by!</p>
+  </section>
+  
+</div> <!-- end container -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="/js/jquery.scrollTo.min.js"></script>
+<script src="/js/jquery.localScroll.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    $.localScroll({
+        duration: 1000,
+//        easing: 'easeInOutExpo',
+        offset: -55,
+      });
+  });
+</script>
+  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-47553747-1', 'code-embed-lti.herokuapp.com');
+  ga('send', 'pageview');
+</script>
+
 </body>
 </html>
