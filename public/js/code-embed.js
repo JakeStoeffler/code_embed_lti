@@ -24,6 +24,14 @@ $(document).ready(function() {
     }
   }
   setupEditor();
+  
+  $('#editor').hover(
+    function() {
+      $("#edit-btn").show();
+    },
+    function() {
+      $("#edit-btn").hide();
+  });
 });
 
 function setupEditor(isReset) {

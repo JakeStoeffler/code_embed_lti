@@ -21,3 +21,10 @@
 #controls label {
   padding-right: 15px;
 }
+
+#edit-btn {
+  position: absolute;
+  display: none;
+  bottom: 10px;
+  right: 10px;
+}

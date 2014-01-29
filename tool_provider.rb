@@ -107,17 +107,23 @@ post '/lti_tool' do
   return erb :error unless authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   
+  user_can_edit = (params['user_id'] == placement.user_id) || @tp.admin? || @tp.teacher? || @tp.ta?
+  
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   
   placement = Placement.first(:placement_id => old_placement_id)
   if placement
     # Placement already exists
-    # Set up and display an editor with stored contents and settings.
-    logger.info "existing placement: #{old_placement_id}"
-    content = placement.content
-    editor_settings = placement.editor_settings
-    hide_settings = true
-    placement_id = old_placement_id
+    if params["edit_mode"] && user_can_edit
+      
+    else
+      # Set up and display an editor with stored contents and settings.
+      logger.info "show existing placement: #{old_placement_id}"
+      content = placement.content
+      editor_settings = placement.editor_settings
+      hide_settings = true
+      placement_id = old_placement_id
+    end
   else
     # New placement
     # Set up the placement_id and return_url

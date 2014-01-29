@@ -20,6 +20,11 @@
     <% end %>
     <div class="<% unless hide_settings %>col-xs-8 <% end %>fill-height">
       <div id="editor" class="fill-height" style="display: none;"></div>
+      <% if can_edit %>
+      <button id="edit-btn" class="btn btn-default">
+        <span class="glyphicon glyphicon-pencil"></span> Edit
+      </button>
+      <% end %>
     </div>
   </div> <!-- end row-fluid -->
 </div> <!-- end container-fluid -->
