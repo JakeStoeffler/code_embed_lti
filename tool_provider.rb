@@ -112,8 +112,10 @@ post '/lti_tool' do
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
       return_url = @tp.iframe_content_return_url(base_url + placement_id, 600, 400, "Code Embed")
     else
-      placement_id = old_placement_id
-      return_url = base_url + placement_id
+      #placement_id = old_placement_id
+      placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
+      #return_url = base_url + placement_id
+      return_url = @tp.lti_launch_content_return_url(base_url + placement_id)
     end
     logger.info "new placement: #{placement_id}"
     content = "// Welcome to Code Embed!\n" + # default content
