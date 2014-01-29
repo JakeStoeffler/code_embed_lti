@@ -93,17 +93,18 @@ post '/lti_tool' do
   return erb :error unless authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   
-  # If this if for a rich content editor, set up the return url
-  if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
+  # Set up the return url
+  url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
+  #if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
+  if @tp.accepts_iframe?
     # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
     placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
+    return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   else
     placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
+    return_url = url
   end
   logger.info "placement_id: #{placement_id}"
-  
-  url = "https" + "://" + request.host_with_port + "/placement/" + placement_id
-  return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
   
   placement = Placement.first(:placement_id => placement_id)
   # If placement already exists, set up and display an editor with stored =
