@@ -110,27 +110,36 @@ post '/lti_tool' do
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   
   placement = Placement.first(:placement_id => old_placement_id)
-  # If placement already exists, set up and display an editor with stored =
-  # contents and settings; else, let user create new editor placement.
   if placement
+    # Placement already exists
+    # Set up and display an editor with stored contents and settings.
     logger.info "existing placement: #{old_placement_id}"
     content = placement.content
     editor_settings = placement.editor_settings
     hide_settings = true
+    placement_id = old_placement_id
   else
-    # Set up the return url
+    # New placement
+    # Set up the placement_id and return_url
     base_url = "https" + "://" + request.host_with_port + "/placement/"
-    #if @tp.is_content_for?(:embed) && @tp.accepts_iframe?
+    
     if @tp.accepts_iframe?
+      # Placement in rich text editor
       # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
       return_url = @tp.iframe_content_return_url(base_url + placement_id, 600, 400, "Code Embed")
-    else
-      #placement_id = old_placement_id
+      
+    elsif @tp.accepts_lti_launch_url?
+      # Placement in "new" module
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-      #return_url = base_url + placement_id
       return_url = @tp.lti_launch_content_return_url(base_url + placement_id, "Code Embed")
+      
+    else
+      # Placement in "old" module
+      placement_id = old_placement_id
+      return_url = base_url + placement_id
     end
+    
     logger.info "new placement: #{placement_id}"
     content = "// Welcome to Code Embed!\n" + # default content
       "// To get started, select the language you want to code in and pick a theme!\n" +
