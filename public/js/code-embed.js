@@ -23,7 +23,7 @@ $(document).ready(function() {
       read_only: '0'
     }
   }
-  editor = setupEditor();
+  setupEditor();
 });
 
 function setupEditor(isReset) {
@@ -69,10 +69,6 @@ function setupEditor(isReset) {
   var $editorEl = $('#editor');
   // we don't display the editor until now to prevent flickering on page load
   $editorEl.show();
-  $editorEl.resizable(); // make editor resizable (via handles) using jQuery UI
-  $editorEl.on("resize", function(){
-    editor.resize(); // ACE needs to be told to resize
-  });
   
   return editor;
 }
