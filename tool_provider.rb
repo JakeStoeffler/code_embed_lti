@@ -10,6 +10,11 @@ require 'oauth/request_proxy/rack_request'
 enable :sessions
 set :protection, :except => :frame_options
 
+def self.get_or_post(url,&block)
+  get(url,&block)
+  post(url,&block)
+end
+
 get '/' do
   erb :index
 end
@@ -75,7 +80,7 @@ def authorize!
 end
 
 # Render the requested placement
-get '/placement/:placement_id' do
+get_or_post '/placement/:placement_id' do
   logger.info "GET /placement/#{params['placement_id']}"
   return "Request is missing placement_id" unless params['placement_id']
   placement = Placement.first(:placement_id => params['placement_id'])
@@ -115,7 +120,7 @@ post '/lti_tool' do
       #placement_id = old_placement_id
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
       #return_url = base_url + placement_id
-      return_url = @tp.lti_launch_content_return_url(base_url + placement_id)
+      return_url = @tp.lti_launch_content_return_url(base_url + placement_id, "Code Embed")
     end
     logger.info "new placement: #{placement_id}"
     content = "// Welcome to Code Embed!\n" + # default content
