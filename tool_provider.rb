@@ -10,6 +10,15 @@ require 'oauth/request_proxy/rack_request'
 enable :sessions
 set :protection, :except => :frame_options
 
+helpers do
+  def versioned_css(css)
+    "/css/#{css}?" + File.mtime(File.join("public", "css", css)).to_i.to_s
+  end
+  def versioned_js(js)
+    "/js/#{js}?" + File.mtime(File.join("public", "js", js)).to_i.to_s
+  end
+end
+
 def self.get_or_post(url,&block)
   get(url,&block)
   post(url,&block)
