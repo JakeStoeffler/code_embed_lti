@@ -82,6 +82,7 @@ def authorize!
   
   @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
   @tp.extend IMS::LTI::Extensions::Content::ToolProvider
+  @tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
   return true
 end
 
@@ -94,6 +95,7 @@ route :get, :post, '/placement/:placement_id' do
   erb :code_embed, :locals => { :content => placement.content,
                                 :editor_settings => placement.editor_settings,
                                 :hide_settings => true,
+                                :for_outcome => false,
                                 :placement_id => params['placement_id'] }
 end
 
@@ -105,6 +107,7 @@ post '/lti_tool' do
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
+  for_outcome = false
   
   placement = Placement.first(:placement_id => old_placement_id)
   if placement
@@ -138,7 +141,13 @@ post '/lti_tool' do
       # Placement in "new" module
       logger.info "Launch for lti_launch_url - new module"
       return_url = @tp.lti_launch_content_return_url(url, "Code Embed")
-      
+    elsif @tp.outcome_service? && @tp.accepts_outcome_url?
+      # Placement as outcome response
+      logger.info "Launch for outcome response"
+      for_outcome = true
+      # Save params to build outcome request upon save
+      flash[:launch_params] = params.to_json.to_s
+      return_url = @tp.build_return_url
     else
       # Placement in "old" module
       logger.info "Launch for old module"
@@ -164,6 +173,7 @@ post '/lti_tool' do
                                 :editor_settings => editor_settings,
                                 :hide_settings => hide_settings,
                                 :placement_id => placement_id,
+                                :for_outcome => for_outcome,
                                 :return_url => return_url }
 end
 
@@ -181,7 +191,23 @@ post "/save_editor" do
     else
       redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
     end
+    
     response = { :success => true, :redirect_url => redirect_url }
+    
+    if params['for_outcome']
+      # Set up an new tool provider using the original params we were given
+      # so the outcome gets sent to the right place (a different save could
+      # have happened since the last tool launch).
+      orig_params = JSON.parse(flash[:launch_params])
+      outcome_tp = IMS::LTI::ToolProvider.new(nil, nil, orig_params)
+      outcome_tp.extend IMS::LTI::Extensions::Content::ToolProvider
+      outcome_tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
+      # Make an outcome request that includes the url for this placement
+      score = 1.0
+      url = "https://#{request.host_with_port}/placement/#{params['placement_id']}"
+      response[:success] = outcome_tp.post_replace_result_with_data!(1.0, {:url => url}).success?
+    end
+    
   else
     response = { :success => false }
   end
@@ -202,7 +228,7 @@ get '/tool_config.xml' do
     :selection_width => 850
   }
   tc.canvas_editor_button! rce_props
-  #tc.canvas_homework_submission! rce_props
+  tc.canvas_homework_submission! rce_props
   tc.canvas_icon_url! icon_url
   tc.canvas_resource_selection! rce_props
   tc.canvas_text! "Code Embed"

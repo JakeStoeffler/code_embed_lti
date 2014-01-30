@@ -27,6 +27,7 @@ $(document).ready(function() {
         content: content,
         editor_settings: editorSettings,
         placement_id: $('#editor-data input[name="placement-id"]').val(),
+        for_outcome: $('#editor-data input[name="for-outcome"]').val(),
         return_url: $('#editor-data input[name="return-url"]').val()
       },
       success: function(data) {
