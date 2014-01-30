@@ -130,12 +130,10 @@ post '/lti_tool' do
       
     elsif @tp.accepts_iframe?
       # Placement in rich text editor
-      placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
       return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
       
     elsif @tp.accepts_lti_launch_url?
       # Placement in "new" module
-      placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
       return_url = @tp.lti_launch_content_return_url(url, "Code Embed")
       
     else
