@@ -115,21 +115,28 @@ post '/lti_tool' do
     editor_settings = placement.editor_settings
     hide_settings = true
     placement_id = old_placement_id
+    
   else
     # New placement
     # Set up the placement_id and return_url
     base_url = "https" + "://" + request.host_with_port + "/placement/"
+    # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
+    placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
+    url = base_url + placement_id
     
-    if @tp.accepts_iframe?
+    if @tp.is_content_for?(:homework) && @tp.accepts_url?
+      # Placement in a homework submission
+      return_url = @tp.url_content_return_url(url, "Code Embed submission")
+      
+    elsif @tp.accepts_iframe?
       # Placement in rich text editor
-      # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-      return_url = @tp.iframe_content_return_url(base_url + placement_id, 600, 400, "Code Embed")
+      return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
       
     elsif @tp.accepts_lti_launch_url?
       # Placement in "new" module
       placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-      return_url = @tp.lti_launch_content_return_url(base_url + placement_id, "Code Embed")
+      return_url = @tp.lti_launch_content_return_url(url, "Code Embed")
       
     else
       # Placement in "old" module
@@ -183,20 +190,20 @@ get '/tool_config.xml' do
   host = "https" + "://" + request.host_with_port
   url = host + "/lti_tool"
   icon_url = host + "/images/icon.png"
+  # Generate the config
   tc = IMS::LTI::ToolConfig.new(:title => "Code Embed LTI Tool", :launch_url => url)
   tc.extend IMS::LTI::Extensions::Canvas::ToolConfig
-  tc.description = "Code Embed allows users to embed a code editor in their LMS per standard LTI."
-  tc.canvas_icon_url!(icon_url)
+  tc.description = "Code Embed is a tool that lets you embed a code editor in an LMS such as Canvas, Blackboard, or Moodle."
   rce_props = {
     :enabled => true,
-    :text => "Code Embed",
-    :selection_width => 850,
-    :selection_height => 600,
-    :icon_url => icon_url
+    :selection_height => 650,
+    :selection_width => 850
   }
-  tc.canvas_editor_button!(rce_props)
-  tc.canvas_resource_selection!(rce_props)
-
+  tc.canvas_editor_button! rce_props
+  tc.canvas_homework_submission! rce_props
+  tc.canvas_resource_selection! rce_props
+  tc.canvas_text! "Code Embed"
+  
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
 end
