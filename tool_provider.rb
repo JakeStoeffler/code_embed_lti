@@ -212,7 +212,7 @@ post "/save_editor" do
     response[:success] = outcome_res.success?
     logger.info outcome_res.generate_response_xml
     outcome_req = outcome_tp.last_outcome_request
-    logger.info ("Req score: " + outcome_req.score)
+    logger.info ("Req score: " + outcome_req.score.to_s)
     logger.info outcome_tp.post_read_result!.generate_response_xml
   end
   
