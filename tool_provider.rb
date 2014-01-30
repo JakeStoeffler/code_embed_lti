@@ -195,11 +195,12 @@ post "/save_editor" do
     response = { :success => true, :redirect_url => redirect_url }
     
     if params['for_outcome']
+      logger.info "Saving for outcome"
       # Set up an new tool provider using the original params we were given
       # so the outcome gets sent to the right place (a different save could
       # have happened since the last tool launch).
       orig_params = JSON.parse(flash[:launch_params])
-      outcome_tp = IMS::LTI::ToolProvider.new(nil, nil, orig_params)
+      outcome_tp = IMS::LTI::ToolProvider.new("key", "secret", orig_params)
       outcome_tp.extend IMS::LTI::Extensions::Content::ToolProvider
       outcome_tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
       # Make an outcome request that includes the url for this placement
