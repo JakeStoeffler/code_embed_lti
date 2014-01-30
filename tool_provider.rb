@@ -180,40 +180,39 @@ end
 # Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
   logger.info "POST /save_editor"
-  if flash["can_save_" + params['placement_id']]
-    Placement.create(:placement_id => params['placement_id'],
-                     :content => params['content'],
-                     :editor_settings => params['editor_settings'])
-    # Save the editor_settings in a cookie so user doesn't have to re-enter them
-    cookies[:editor_settings] = params['editor_settings']
-    if params['return_url'] && !params['return_url'].empty?
-      redirect_url = params['return_url']
-    else
-      redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
-    end
-    
-    response = { :success => true, :redirect_url => redirect_url }
-    
-    if params['for_outcome']
-      logger.info "Saving for outcome"
-      # Set up an new tool provider using the original params we were given
-      # so the outcome gets sent to the right place (a different save could
-      # have happened since the last tool launch).
-      orig_params = JSON.parse(flash[:launch_params])
-      outcome_tp = IMS::LTI::ToolProvider.new("key", "secret", orig_params)
-      outcome_tp.extend IMS::LTI::Extensions::Content::ToolProvider
-      outcome_tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
-      # Make an outcome request that includes the url for this placement
-      score = 1.0
-      url = "https://#{request.host_with_port}/placement/#{params['placement_id']}"
-      outcome_resp = outcome_tp.post_replace_result_with_data!(score, {:url => url})
-      response[:success] = outcome_resp.success?
-      logger.info outcome_resp.generated_response_xml
-    end
-    
+  return { :success => false }.to_json unless flash["can_save_" + params['placement_id']]
+  
+  Placement.create(:placement_id => params['placement_id'],
+                   :content => params['content'],
+                   :editor_settings => params['editor_settings'])
+  
+  # Save the editor_settings in a cookie so user doesn't have to re-enter them
+  cookies[:editor_settings] = params['editor_settings']
+  if params['return_url'] && !params['return_url'].empty?
+    redirect_url = params['return_url']
   else
-    response = { :success => false }
+    redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
   end
+  
+  response = { :success => true, :redirect_url => redirect_url }
+  
+  if params['for_outcome']
+    logger.info "Saving for outcome"
+    # Set up an new tool provider using the original params we were given
+    # so the outcome gets sent to the right place (a different save could
+    # have happened since the last tool launch).
+    orig_params = JSON.parse(flash[:launch_params])
+    outcome_tp = IMS::LTI::ToolProvider.new("key", "secret", orig_params)
+    outcome_tp.extend IMS::LTI::Extensions::Content::ToolProvider
+    outcome_tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
+    # Make an outcome request that includes the url for this placement
+    score = 1.0
+    url = "https://#{request.host_with_port}/placement/#{params['placement_id']}"
+    outcome_resp = outcome_tp.post_replace_result_with_data!(score, {:url => url})
+    response[:success] = outcome_resp.success?
+    logger.info outcome_resp.generate_response_xml
+  end
+  
   response.to_json
 end
 
