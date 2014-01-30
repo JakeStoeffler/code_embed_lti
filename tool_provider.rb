@@ -126,18 +126,22 @@ post '/lti_tool' do
     
     if @tp.is_content_for?(:homework) && @tp.accepts_url?
       # Placement in a homework submission
+      logger.info "Launch for homework - url"
       return_url = @tp.url_content_return_url(url, "Code Embed submission")
       
     elsif @tp.accepts_iframe?
       # Placement in rich text editor
+      logger.info "Launch for iframe"
       return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
       
     elsif @tp.accepts_lti_launch_url?
       # Placement in "new" module
+      logger.info "Launch for lti_launch_url - new module"
       return_url = @tp.lti_launch_content_return_url(url, "Code Embed")
       
     else
       # Placement in "old" module
+      logger.info "Launch for old module"
       placement_id = old_placement_id
       return_url = base_url + placement_id
     end
@@ -198,7 +202,7 @@ get '/tool_config.xml' do
     :selection_width => 850
   }
   tc.canvas_editor_button! rce_props
-  tc.canvas_homework_submission! rce_props
+  #tc.canvas_homework_submission! rce_props
   tc.canvas_icon_url! icon_url
   tc.canvas_resource_selection! rce_props
   tc.canvas_text! "Code Embed"
