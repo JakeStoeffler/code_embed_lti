@@ -201,6 +201,7 @@ get '/tool_config.xml' do
   }
   tc.canvas_editor_button! rce_props
   tc.canvas_homework_submission! rce_props
+  tc.canvas_icon_url! icon_url
   tc.canvas_resource_selection! rce_props
   tc.canvas_text! "Code Embed"
   
