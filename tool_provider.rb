@@ -208,7 +208,7 @@ post "/save_editor" do
     # Make an outcome request that includes the url for this placement
     score = 1.0
     url = "https://#{request.host_with_port}/placement/#{params['placement_id']}"
-    outcome_res = outcome_tp.post_replace_result_with_data!(score, {:url => url})
+    outcome_res = outcome_tp.post_replace_result_with_data!(score, {:outcome_url => url})
     response[:success] = outcome_res.success?
     logger.info outcome_res.generate_response_xml
     outcome_req = outcome_tp.last_outcome_request
