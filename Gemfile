@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'sinatra'
-gem "sinatra-flash", "~> 0.3.0"
-gem 'ims-lti', '>=1.1.4'#:git => "https://github.com/instructure/ims-lti.git"
+gem 'sinatra', '~> 1.4.4'
+gem 'sinatra-contrib', '~> 1.4.2'
+gem 'sinatra-flash', '~> 0.3.0'
+gem 'ims-lti', '>=1.1.4'
 gem 'dm-core'
 gem 'dm-migrations'
 gem 'dm-postgres-adapter'

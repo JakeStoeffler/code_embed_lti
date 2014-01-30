@@ -1,4 +1,6 @@
 require 'sinatra'
+require 'sinatra/cookies'
+require 'sinatra/multi_route'
 require 'sinatra/flash'
 require 'ims/lti'
 require 'dm-core'
@@ -17,11 +19,6 @@ helpers do
   def versioned_js(js)
     "/js/#{js}?" + File.mtime(File.join("public", "js", js)).to_i.to_s
   end
-end
-
-def self.get_or_post(url,&block)
-  get(url,&block)
-  post(url,&block)
 end
 
 get '/' do
@@ -89,7 +86,7 @@ def authorize!
 end
 
 # Render the requested placement
-get_or_post '/placement/:placement_id' do
+route :get, :post, '/placement/:placement_id' do
   logger.info "GET /placement/#{params['placement_id']}"
   return "Request is missing placement_id" unless params['placement_id']
   placement = Placement.first(:placement_id => params['placement_id'])
@@ -145,7 +142,7 @@ post '/lti_tool' do
       "// To get started, select the language you want to code in and pick a theme!\n" +
       "// Feel free to play around with the other settings as well.\n" +
       "// When you're done, just click 'Embed this code!' and the code will be embedded in your LMS exactly as it appears here!"
-    editor_settings = nil
+    editor_settings = cookies[:editor_settings] or nil # get settings from cookie if exists
     hide_settings = false
     # use a cookie-based session to remember placement permission
     flash["can_save_" + placement_id] = true
@@ -168,6 +165,8 @@ post "/save_editor" do
     Placement.create(:placement_id => params['placement_id'],
                      :content => params['content'],
                      :editor_settings => params['editor_settings'])
+    # Save the editor_settings in a cookie so user doesn't have to re-enter them
+    cookies[:editor_settings] = params['editor_settings']
     if params['return_url'] && !params['return_url'].empty?
       redirect_url = params['return_url']
     else
