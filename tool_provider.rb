@@ -227,9 +227,11 @@ get '/tool_config.xml' do
     :selection_height => 650,
     :selection_width => 850
   }
+  tc.canvas_domain! request.host_with_port
   tc.canvas_editor_button! rce_props
   tc.canvas_homework_submission! rce_props
   tc.canvas_icon_url! icon_url
+  tc.canvas_privacy_public!
   tc.canvas_resource_selection! rce_props
   tc.canvas_text! "Code Embed"
   
