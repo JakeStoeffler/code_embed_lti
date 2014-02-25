@@ -138,9 +138,10 @@ post '/lti_tool' do
       return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
       
     elsif @tp.accepts_lti_launch_url?
-      # Placement in "new" module
+      # Placement in "new" module - just return the launch url so user can later select content
       logger.info "Launch for lti_launch_url - new module"
-      return_url = @tp.lti_launch_content_return_url(url, "Code Embed")
+      launch_url = "https" + "://" + request.host_with_port + "/lti_tool"
+      return_url = @tp.lti_launch_content_return_url(launch_url, "Code Embed")
     elsif @tp.outcome_service? && @tp.accepts_outcome_url?
       # Placement as outcome response
       logger.info "Launch for outcome response"
