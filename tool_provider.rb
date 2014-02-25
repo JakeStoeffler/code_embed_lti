@@ -196,7 +196,7 @@ post "/save_editor" do
   
   response = { :success => true, :redirect_url => redirect_url }
   
-  if params['for_outcome']
+  if params['for_outcome'] == "true"
     logger.info "Saving for outcome"
     # Set up an new tool provider using the original params we were given
     # so the outcome gets sent to the right place (a different save could
