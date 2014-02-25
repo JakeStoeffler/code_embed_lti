@@ -141,7 +141,7 @@ post '/lti_tool' do
       # Placement in "new" module - just return the launch url so user can later select content
       logger.info "Launch for lti_launch_url - new module"
       launch_url = "https" + "://" + request.host_with_port + "/lti_tool"
-      return @tp.lti_launch_content_return_url(launch_url, "Code Embed")
+      redirect @tp.lti_launch_content_return_url(launch_url, "Code Embed")
     elsif @tp.outcome_service? && @tp.accepts_outcome_url?
       # Placement as outcome response
       logger.info "Launch for outcome response"
