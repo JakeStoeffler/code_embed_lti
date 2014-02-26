@@ -14,13 +14,16 @@
     <div class="col-xs-4 fill-height" id="settings">
       <!-- put settings panel here -->
       <%= erb :_settings_panel %>
-      <button class="btn btn-large btn-primary" id="save-button" type="button">Embed this code!</button>
+      <button class="btn btn-large btn-primary" id="save-button" type="button">
+        <% if can_edit %> Save changes
+        <% else %> Embed this code!<% end %>
+      </button>
       <button class="btn btn-large" id="reset-button" type="button">Reset</button>
     </div> <!-- end settings -->
     <% end %>
     <div class="<% unless hide_settings %>col-xs-8 <% end %>fill-height">
       <div id="editor" class="fill-height" style="display: none;"></div>
-      <% if defined?(can_edit) && can_edit %>
+      <% if can_edit && hide_settings %>
       <button id="edit-btn" class="btn btn-default">
         <span class="glyphicon glyphicon-pencil"></span> Edit
       </button>
@@ -42,6 +45,7 @@
   <input type="hidden" name="editor-settings" value="<%= editor_settings if defined? editor_settings %>" />
   <input type="hidden" name="placement-id" value="<%= placement_id if defined? placement_id %>" />
   <input type="hidden" name="for-outcome" value="<%= for_outcome if defined? for_outcome %>" />
+  <input type="hidden" name="can-edit" value="<%= can_edit if defined? can_edit %>" />
   <input type="hidden" name="return-url" value="<%= return_url if defined? return_url %>" />
 </form>
 

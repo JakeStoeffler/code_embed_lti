@@ -25,12 +25,16 @@ $(document).ready(function() {
   }
   setupEditor();
   
-  $('#editor').hover(
+  $(document.body).hover(
     function() {
       $("#edit-btn").show();
     },
     function() {
       $("#edit-btn").hide();
+  });
+  
+  $("#edit-btn").click(function() {
+    window.location.href = window.location.href + "?edit_mode=true";
   });
 });
 

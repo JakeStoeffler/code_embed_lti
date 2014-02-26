@@ -92,10 +92,20 @@ route :get, :post, '/placement/:placement_id' do
   return "Request is missing placement_id" unless params['placement_id']
   placement = Placement.first(:placement_id => params['placement_id'])
   return "Placement with id \"#{params['placement_id']}\" does not exist" unless placement
+
+  hide_settings = true
+  user_can_edit = cookies["can_edit_#{params['placement_id']}"]
+
+  if params["edit_mode"] && user_can_edit
+      # Allow the editor to be edited
+      logger.info "edit mode"
+      hide_settings = false
+  end
   erb :code_embed, :locals => { :content => placement.content,
                                 :editor_settings => placement.editor_settings,
-                                :hide_settings => true,
+                                :hide_settings => hide_settings,
                                 :for_outcome => false,
+                                :can_edit => user_can_edit,
                                 :placement_id => params['placement_id'] }
 end
 
@@ -106,24 +116,22 @@ post '/lti_tool' do
   return erb :error unless authorize!
   return "missing resource_link_id in request: #{params}" unless params['resource_link_id']
   
-  user_can_edit = (params['user_id'] == placement.user_id) || @tp.admin? || @tp.teacher? || @tp.ta?
   
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   for_outcome = false
+  user_can_edit = false
   
   placement = Placement.first(:placement_id => old_placement_id)
   if placement
     # Placement already exists
-    if params["edit_mode"] && user_can_edit
-      
-    else
-      # Set up and display an editor with stored contents and settings.
-      logger.info "show existing placement: #{old_placement_id}"
-      content = placement.content
-      editor_settings = placement.editor_settings
-      hide_settings = true
-      placement_id = old_placement_id
-    end
+    # Set up and display an editor with stored contents and settings.
+    logger.info "show existing placement: #{old_placement_id}"
+    content = placement.content
+    editor_settings = placement.editor_settings
+    hide_settings = true
+    placement_id = old_placement_id
+    user_can_edit = cookies["can_edit_#{old_placement_id}"]
+    
   else
     # New placement
     # Set up the placement_id and return_url
@@ -170,6 +178,7 @@ post '/lti_tool' do
     hide_settings = false
     # use a cookie-based session to remember placement permission
     flash["can_save_" + placement_id] = true
+    flash[:user_id] = params['user_id'] + (params['tool_consumer_instance_guid'] or "")
   end
   
   @tp.lti_msg = "Thanks for using Code Embed!"
@@ -180,20 +189,30 @@ post '/lti_tool' do
                                 :hide_settings => hide_settings,
                                 :placement_id => placement_id,
                                 :for_outcome => for_outcome,
+                                :can_edit => user_can_edit,
                                 :return_url => return_url }
 end
 
 # Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
   logger.info "POST /save_editor"
-  return { :success => false }.to_json unless flash["can_save_" + params['placement_id']]
+  user_can_edit = cookies["can_edit_#{params['placement_id']}"]
+  return { :success => false }.to_json unless (flash["can_save_" + params['placement_id']] || user_can_edit)
   
-  Placement.create(:placement_id => params['placement_id'],
+  existing_placement = Placement.first(:placement_id => params['placement_id'])
+  if existing_placement
+    existing_placement.update(:editor_settings => params['editor_settings'],
+      :content => params['content'])
+  else
+    Placement.create(:placement_id => params['placement_id'],
                    :content => params['content'],
-                   :editor_settings => params['editor_settings'])
+                   :editor_settings => params['editor_settings'],
+                   :user_id => flash[:user_id])
+  end
   
   # Save the editor_settings in a cookie so user doesn't have to re-enter them
   cookies[:editor_settings] = params['editor_settings']
+  cookies["can_edit_#{params['placement_id']}"] = true
   if params['return_url'] && !params['return_url'].empty?
     redirect_url = params['return_url']
   else
@@ -264,6 +283,7 @@ class Placement
   property :placement_id, String, :length => 1024
   property :content, Text
   property :editor_settings, String, :length => 1024
+  property :user_id, String, :length => 1024
 end
 
 DataMapper::Logger.new($stdout, :debug)
