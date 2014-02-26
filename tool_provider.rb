@@ -1,4 +1,6 @@
 require 'sinatra'
+require 'sinatra/cookies'
+require 'sinatra/multi_route'
 require 'sinatra/flash'
 require 'ims/lti'
 require 'dm-core'
@@ -17,11 +19,6 @@ helpers do
   def versioned_js(js)
     "/js/#{js}?" + File.mtime(File.join("public", "js", js)).to_i.to_s
   end
-end
-
-def self.get_or_post(url,&block)
-  get(url,&block)
-  post(url,&block)
 end
 
 get '/' do
@@ -85,11 +82,12 @@ def authorize!
   
   @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
   @tp.extend IMS::LTI::Extensions::Content::ToolProvider
+  @tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
   return true
 end
 
 # Render the requested placement
-get_or_post '/placement/:placement_id' do
+route :get, :post, '/placement/:placement_id' do
   logger.info "GET /placement/#{params['placement_id']}"
   return "Request is missing placement_id" unless params['placement_id']
   placement = Placement.first(:placement_id => params['placement_id'])
@@ -97,6 +95,7 @@ get_or_post '/placement/:placement_id' do
   erb :code_embed, :locals => { :content => placement.content,
                                 :editor_settings => placement.editor_settings,
                                 :hide_settings => true,
+                                :for_outcome => false,
                                 :placement_id => params['placement_id'] }
 end
 
@@ -110,6 +109,7 @@ post '/lti_tool' do
   user_can_edit = (params['user_id'] == placement.user_id) || @tp.admin? || @tp.teacher? || @tp.ta?
   
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
+  for_outcome = false
   
   placement = Placement.first(:placement_id => old_placement_id)
   if placement
@@ -128,20 +128,35 @@ post '/lti_tool' do
     # New placement
     # Set up the placement_id and return_url
     base_url = "https" + "://" + request.host_with_port + "/placement/"
+    # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
+    placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
+    url = base_url + placement_id
     
-    if @tp.accepts_iframe?
+    if @tp.is_content_for?(:homework) && @tp.accepts_url?
+      # Placement in a homework submission
+      logger.info "Launch for homework - url"
+      return_url = @tp.url_content_return_url(url, "Code Embed submission")
+      
+    elsif @tp.accepts_iframe?
       # Placement in rich text editor
-      # make a random placement_id since Canvas doesn't give us unique ids with the editor button launch
-      placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-      return_url = @tp.iframe_content_return_url(base_url + placement_id, 600, 400, "Code Embed")
+      logger.info "Launch for iframe"
+      return_url = @tp.iframe_content_return_url(url, 600, 400, "Code Embed")
       
     elsif @tp.accepts_lti_launch_url?
-      # Placement in "new" module
-      placement_id = (0...20).map { ((0..9).to_a+('a'..'z').to_a+('A'..'Z').to_a)[rand(62)] }.join
-      return_url = @tp.lti_launch_content_return_url(base_url + placement_id, "Code Embed")
-      
+      # Placement in "new" module - just return the launch url so user can later select content
+      logger.info "Launch for lti_launch_url - new module"
+      launch_url = "https" + "://" + request.host_with_port + "/lti_tool"
+      redirect @tp.lti_launch_content_return_url(launch_url, "Code Embed")
+    elsif @tp.outcome_service? && @tp.accepts_outcome_url?
+      # Placement as outcome response
+      logger.info "Launch for outcome response"
+      for_outcome = true
+      # Save params to build outcome request upon save
+      flash[:launch_params] = params.to_json.to_s
+      return_url = @tp.build_return_url
     else
       # Placement in "old" module
+      logger.info "Launch for old module"
       placement_id = old_placement_id
       return_url = base_url + placement_id
     end
@@ -151,7 +166,7 @@ post '/lti_tool' do
       "// To get started, select the language you want to code in and pick a theme!\n" +
       "// Feel free to play around with the other settings as well.\n" +
       "// When you're done, just click 'Embed this code!' and the code will be embedded in your LMS exactly as it appears here!"
-    editor_settings = nil
+    editor_settings = cookies[:editor_settings] or nil # get settings from cookie if exists
     hide_settings = false
     # use a cookie-based session to remember placement permission
     flash["can_save_" + placement_id] = true
@@ -164,25 +179,51 @@ post '/lti_tool' do
                                 :editor_settings => editor_settings,
                                 :hide_settings => hide_settings,
                                 :placement_id => placement_id,
+                                :for_outcome => for_outcome,
                                 :return_url => return_url }
 end
 
 # Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
   logger.info "POST /save_editor"
-  if flash["can_save_" + params['placement_id']]
-    Placement.create(:placement_id => params['placement_id'],
-                     :content => params['content'],
-                     :editor_settings => params['editor_settings'])
-    if params['return_url'] && !params['return_url'].empty?
-      redirect_url = params['return_url']
-    else
-      redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
-    end
-    response = { :success => true, :redirect_url => redirect_url }
+  return { :success => false }.to_json unless flash["can_save_" + params['placement_id']]
+  
+  Placement.create(:placement_id => params['placement_id'],
+                   :content => params['content'],
+                   :editor_settings => params['editor_settings'])
+  
+  # Save the editor_settings in a cookie so user doesn't have to re-enter them
+  cookies[:editor_settings] = params['editor_settings']
+  if params['return_url'] && !params['return_url'].empty?
+    redirect_url = params['return_url']
   else
-    response = { :success => false }
+    redirect_url = "https" + "://" + request.host_with_port + "/placement/" + params['placement_id']
   end
+  
+  response = { :success => true, :redirect_url => redirect_url }
+  
+  if params['for_outcome'] == "true"
+    logger.info "Saving for outcome"
+    # Set up an new tool provider using the original params we were given
+    # so the outcome gets sent to the right place (a different save could
+    # have happened since the last tool launch).
+    orig_params = JSON.parse(flash[:launch_params])
+    outcome_tp = IMS::LTI::ToolProvider.new("key", "secret", orig_params)
+    outcome_tp.extend IMS::LTI::Extensions::Content::ToolProvider
+    outcome_tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
+    # Make an outcome request that includes the url for this placement
+    score = 1.0
+    url = "https://#{request.host_with_port}/placement/#{params['placement_id']}"
+    outcome_res = outcome_tp.post_replace_result_with_data!(score, "url" => url)
+    response[:success] = outcome_res.success?
+    logger.info outcome_res.generate_response_xml
+    outcome_req = outcome_tp.last_outcome_request
+    logger.info ("Req score: " + outcome_req.score.to_s)
+    logger.info ("Req URL: " + outcome_req.outcome_url.to_s)
+    logger.info ("Req text: " + outcome_req.outcome_text.to_s)
+    logger.info outcome_tp.post_read_result!.generate_response_xml
+  end
+  
   response.to_json
 end
 
@@ -190,20 +231,23 @@ get '/tool_config.xml' do
   host = "https" + "://" + request.host_with_port
   url = host + "/lti_tool"
   icon_url = host + "/images/icon.png"
+  # Generate the config
   tc = IMS::LTI::ToolConfig.new(:title => "Code Embed LTI Tool", :launch_url => url)
   tc.extend IMS::LTI::Extensions::Canvas::ToolConfig
-  tc.description = "Code Embed allows users to embed a code editor in their LMS per standard LTI."
-  tc.canvas_icon_url!(icon_url)
+  tc.description = "Code Embed is a tool that lets you embed a code editor in an LMS such as Canvas, Blackboard, or Moodle."
   rce_props = {
     :enabled => true,
-    :text => "Code Embed",
-    :selection_width => 850,
-    :selection_height => 600,
-    :icon_url => icon_url
+    :selection_height => 650,
+    :selection_width => 850
   }
-  tc.canvas_editor_button!(rce_props)
-  tc.canvas_resource_selection!(rce_props)
-
+  tc.canvas_domain! request.host_with_port
+  tc.canvas_editor_button! rce_props
+  tc.canvas_homework_submission! rce_props
+  tc.canvas_icon_url! icon_url
+  tc.canvas_privacy_public!
+  tc.canvas_resource_selection! rce_props
+  tc.canvas_text! "Code Embed"
+  
   headers 'Content-Type' => 'text/xml'
   tc.to_xml(:indent => 2)
 end
