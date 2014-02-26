@@ -23,6 +23,7 @@ GEM
       data_objects (= 0.10.13)
     do_sqlite3 (0.10.13)
       data_objects (= 0.10.13)
+    encrypted_cookie (0.0.4)
     ims-lti (1.1.4)
       builder
       oauth (~> 0.4.5)
@@ -66,6 +67,7 @@ DEPENDENCIES
   dm-migrations
   dm-postgres-adapter
   dm-sqlite-adapter
+  encrypted_cookie
   ims-lti (>= 1.1.4)
   json
   pg

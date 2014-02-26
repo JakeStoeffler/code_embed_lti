@@ -6,10 +6,11 @@ require 'ims/lti'
 require 'dm-core'
 require 'dm-migrations'
 require 'json'
+require 'encrypted_cookie'
 # must include the oauth proxy object
 require 'oauth/request_proxy/rack_request'
 
-enable :sessions
+use Rack::Session::EncryptedCookie, :secret => '81e7d0afd6d913b1c670814168b70efd0b8043dd73aa000a9b1e03cdd8ec3365', :expire_after => 86400*365*30
 set :protection, :except => :frame_options
 
 helpers do
@@ -77,9 +78,6 @@ def authorize!
 #     return false
 #   end
 
-  # save the launch parameters for use in later request
-  #session['launch_params'] = @tp.to_params
-  
   @tp = IMS::LTI::ToolProvider.new(nil, nil, params)
   @tp.extend IMS::LTI::Extensions::Content::ToolProvider
   @tp.extend IMS::LTI::Extensions::OutcomeData::ToolProvider
@@ -94,9 +92,8 @@ route :get, :post, '/placement/:placement_id' do
   return "Placement with id \"#{params['placement_id']}\" does not exist" unless placement
 
   hide_settings = true
-  user_can_edit = cookies["can_edit_#{params['placement_id']}"]
 
-  if params["edit_mode"] && user_can_edit
+  if params["edit_mode"] && session["can_edit_#{params['placement_id']}"]
       # Allow the editor to be edited
       logger.info "edit mode"
       hide_settings = false
@@ -105,7 +102,7 @@ route :get, :post, '/placement/:placement_id' do
                                 :editor_settings => placement.editor_settings,
                                 :hide_settings => hide_settings,
                                 :for_outcome => false,
-                                :can_edit => user_can_edit,
+                                :can_edit => session["can_edit_#{params['placement_id']}"],
                                 :placement_id => params['placement_id'] }
 end
 
@@ -130,7 +127,7 @@ post '/lti_tool' do
     editor_settings = placement.editor_settings
     hide_settings = true
     placement_id = old_placement_id
-    user_can_edit = cookies["can_edit_#{old_placement_id}"]
+    user_can_edit = session["can_edit_#{old_placement_id}"]
     
   else
     # New placement
@@ -196,8 +193,7 @@ end
 # Handle POST requests to the endpoint "/save_editor"
 post "/save_editor" do
   logger.info "POST /save_editor"
-  user_can_edit = cookies["can_edit_#{params['placement_id']}"]
-  return { :success => false }.to_json unless (flash["can_save_" + params['placement_id']] || user_can_edit)
+  return { :success => false }.to_json unless (flash["can_save_" + params['placement_id']] || session["can_edit_#{params['placement_id']}"])
   
   existing_placement = Placement.first(:placement_id => params['placement_id'])
   if existing_placement
@@ -212,7 +208,7 @@ post "/save_editor" do
   
   # Save the editor_settings in a cookie so user doesn't have to re-enter them
   cookies[:editor_settings] = params['editor_settings']
-  cookies["can_edit_#{params['placement_id']}"] = true
+  session["can_edit_#{params['placement_id']}"] = true
   if params['return_url'] && !params['return_url'].empty?
     redirect_url = params['return_url']
   else

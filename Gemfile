@@ -10,6 +10,7 @@ gem 'dm-migrations'
 gem 'dm-postgres-adapter'
 gem 'pg'
 gem 'json'
+gem 'encrypted_cookie'
 
 group :development do
   gem 'shotgun'
