@@ -1,6 +1,6 @@
 # Code Embed LTI Tool
-- live at [code-embed-lti.herokuapp.com](https://code-embed-lti.herokuapp.com)!
-- instructions for installation and usage [here](https://code-embed-lti.herokuapp.com)
+- live at [code-embed.com](http://www.code-embed.com)!
+- instructions for installation and usage [here](http://www.code-embed.com)
 - featured on [Edu Apps](https://www.edu-apps.org/index.html?tool=code_embed)
 - placed in the top ten for the [LTI App Bounty](http://instructure.github.io/lti_bounty) initiated by Instructure
 
