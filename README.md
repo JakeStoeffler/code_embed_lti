@@ -1,3 +1,8 @@
+## Warning
+Code Embed is no longer under active development.  It started out as a hobby project and I've simply run out of time to maintain it.  If someone would like to step up and take over, please contact me.  Thanks!
+
+--Jake
+
 # Code Embed LTI Tool
 - live at [code-embed.com](http://www.code-embed.com)!
 - instructions for installation and usage [here](http://www.code-embed.com)
