@@ -1,5 +1,7 @@
-## Warning
-Code Embed is no longer under active development.  It started out as a hobby project and I've simply run out of time to maintain it.  If someone would like to step up and take over, please contact me.  Thanks!
+<a href="https://liberapay.com/JakeStoeffler/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a>
+
+## Looking for donations!
+Code Embed is currently broken due to needing a paid database plan and some maintenance to the codebase. I am currently [accepting donations on Liberapay](https://liberapay.com/JakeStoeffler/) to help with these costs! If you would like to see Code Embed working again, please consider contributing! Thanks.
 
 --Jake
 
