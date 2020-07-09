@@ -7,8 +7,6 @@ require 'dm-core'
 require 'dm-migrations'
 require 'json'
 require 'encrypted_cookie'
-# must include the oauth proxy object
-require 'oauth/request_proxy/rack_request'
 
 use Rack::Session::EncryptedCookie, :secret => '81e7d0afd6d913b1c670814168b70efd0b8043dd73aa000a9b1e03cdd8ec3365', :expire_after => 86400*365*30
 set :protection, :except => :frame_options

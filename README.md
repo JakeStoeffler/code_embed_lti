@@ -24,6 +24,6 @@ Code Embed
 To get this running in your development environment, check out the repo, then run:
 
     bundle install
-    shotgun
+    bundle exec rackup config.ru -p 3000
 
 You can use the XML from the `/tool_config.xml` endpoint to configure the tool in a Tool Consumer.
