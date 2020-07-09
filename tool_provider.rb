@@ -117,8 +117,9 @@ post '/lti_tool' do
   old_placement_id = params['resource_link_id'] + (params['tool_consumer_instance_guid'] or "")
   for_outcome = false
   user_can_edit = false
+  is_new_editor_placement = (params['selection_directive'] == 'embed_content')
   
-  placement = Placement.first(:placement_id => old_placement_id)
+  placement = Placement.first(:placement_id => old_placement_id) unless is_new_editor_placement
   if placement
     # Placement already exists
     # Set up and display an editor with stored contents and settings.
