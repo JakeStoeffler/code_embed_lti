@@ -29,7 +29,7 @@ GEM
     ims-lti (1.1.13)
       builder
       oauth (>= 0.4.5, < 0.6)
-    json (1.8.6)
+    json (2.3.0)
     multi_json (1.14.1)
     oauth (0.5.4)
     pg (1.2.3)
@@ -64,7 +64,7 @@ DEPENDENCIES
   dm-sqlite-adapter
   encrypted_cookie
   ims-lti (~> 1.1.4)
-  json (~> 1.8.6)
+  json (~> 2.3.0)
   pg
   sinatra (~> 1.4.4)
   sinatra-contrib (~> 1.4.2)
