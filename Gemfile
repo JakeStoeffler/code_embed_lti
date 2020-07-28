@@ -7,7 +7,7 @@ gem 'sinatra-flash', '~> 0.3.0'
 gem 'ims-lti', '~> 1.1.4'
 gem 'dm-core'
 gem 'dm-migrations'
-gem 'json', '~> 1.8.6'
+gem 'json', '~> 2.3.0'
 gem 'encrypted_cookie'
 
 group :production do
