@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 ruby '~> 2.6.3'
 
-gem 'sinatra', '~> 1.4.4'
-gem 'sinatra-contrib', '~> 1.4.2'
+gem 'sinatra', '~> 3.0.4'
+gem 'sinatra-contrib', '~> 3.0.4'
 gem 'sinatra-flash', '~> 0.3.0'
 gem 'ims-lti', '~> 1.1.4'
 gem 'dm-core'
